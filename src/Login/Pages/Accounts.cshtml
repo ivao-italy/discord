@@ -1,0 +1,45 @@
+﻿@page
+@model Ivao.It.DiscordLogin.Pages.AccountsModel
+@inject IConfiguration Configuration
+@inject IViewLocalizer Localizer
+
+@{
+	ViewData["Title"] = "Link accounts";
+
+	var ivaoLoginUrl = $"{Configuration.GetConnectionString("IvaoLoginUrl")}?url={Url.PageLink("gotodiscord")}";
+}
+
+<div class="text-center">
+	<h1 class="display-6">Discord Server</h1>
+
+	<p class="mb-5">
+		@Localizer["Welcome"]
+	</p>
+
+	@if (!(this.User?.Identity?.IsAuthenticated ?? false))
+	{
+		<p>
+			@Localizer["DiscordLogin"]
+			<form asp-controller="DiscordAuth" asp-action="SignIn" method="post">
+				<button class="btn btn-lg btn-primary m-1" type="submit"><i class="bi bi-discord"></i> @Localizer["LoginWith"] Discord</button>
+			</form>
+		</p>
+	}
+	else
+	{
+		<div class="row">
+			<div class="col">
+				<p class="text-center text-success">
+					<i class="bi bi-check2-circle" style="font-size: 5rem"></i>
+				</p>
+				<button class="btn btn-lg btn-outline-success m-1" disabled><i class="bi bi-discord"></i> Discord (@User.Identity.Name)</button>
+			</div>
+			<div class="col">
+				<p>
+					@Localizer["IvaoLogin"]
+				</p>
+				<a href="@ivaoLoginUrl" class="btn btn-light btn-outline-primary m-1"><img src="images/logo.svg" style="width: 3rem" /> @Localizer["LoginWith"] IVAO</a>
+			</div>
+		</div>
+	}
+</div>

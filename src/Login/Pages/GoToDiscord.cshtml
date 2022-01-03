@@ -1,0 +1,22 @@
+﻿@page
+@model Ivao.It.DiscordLogin.Pages.GoToDiscordModel
+@inject IViewLocalizer Localizer
+@inject IConfiguration Configuration
+
+@{
+	ViewData["Title"] = "All set! Go to Discord";
+}
+
+<div>
+	<h1 class="display-4">Welcome aboard, Capt. @Model.IvaoUser!.FirstName!</h1>
+	<p class="lead">
+		@Localizer["Welcome"]
+	</p>
+	<p>
+		@Localizer["Instructions"]
+	</p>
+
+	<p class="text-center">
+		<a href="@Configuration.GetConnectionString("DiscordInvite")" class="btn btn-lg btn-primary m-1" type="submit"><i class="bi bi-discord"></i>  Go to Discord</a>
+	</p>
+</div>

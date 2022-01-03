@@ -1,0 +1,35 @@
+﻿@page
+@model Ivao.It.DiscordLogin.Pages.CallbackModel
+@inject IViewLocalizer Localizer
+
+@{
+	ViewData["Title"] = "Discord Policies";
+}
+
+<div>
+	<p class="lead">
+		@Localizer["PolicyIntro"]
+	</p>
+</div>
+<form method="post">
+	<div class="alert alert-secondary">
+		<div class="form-check">
+			<input class="form-check-input" type="checkbox" asp-for="IsPolicyIvaoAccepted" id="ivaorr" required>
+			<label class="form-check-label" for="ivaorr">
+				@Localizer["Policy1"]
+			</label>
+		</div>
+		<div class="form-check">
+			<input class="form-check-input" type="checkbox" asp-for="IsPolicyDiscordAccepted" id="discord" required>
+			<label class="form-check-label" for="discord">
+				@Localizer["Policy2"]
+			</label>
+		</div>
+	</div>
+	<div class="alert alert-success">
+		<div class="text-center">
+			<button class="btn btn-success" type="submit">@Localizer["IAgree"]</button>
+		</div>
+	</div>
+</form>
+

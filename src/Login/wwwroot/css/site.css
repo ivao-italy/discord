@@ -1,0 +1,84 @@
+@import url(https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700&family=Poppins:wght@300;400&display=swap);
+
+
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Nunito Sans', sans-serif;
+    color: #0D2C99;
+}
+h1, h2, h3{
+    font-weight: bold;
+}
+
+
+a.navbar-brand {
+    white-space: normal;
+    text-align: center;
+    word-break: break-all;
+}
+
+a {
+    color: #0077cc;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.border-top {
+    border-top: 1px solid #e5e5e5;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+    font-size: 1rem;
+    line-height: inherit;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+}
+
+    .footer .flag {
+        width: 2rem;
+        border: 1px solid #0D2C99;
+        border-radius: 1rem;
+    }

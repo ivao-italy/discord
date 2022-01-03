@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ivao.It.DiscordBot.Service", "src\Service\Ivao.It.DiscordBot.Service.csproj", "{9C6D2096-E85A-443C-8B0F-939B560EF735}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ivao.It.DiscordBot", "src\Bot\Ivao.It.DiscordBot.csproj", "{B4F30725-7844-4F64-B697-9DEB373E1ACA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{837C7A6B-E2BC-48D9-9290-D49C80E84524}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ivao.It.DiscordLogin", "src\Login\Ivao.It.DiscordLogin.csproj", "{76F4A467-06D2-418A-B959-5AD470A08FB1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ivao.It.DiscordBot.Data", "src\Data\Ivao.It.DiscordBot.Data.csproj", "{89734822-94D1-46B1-84F4-49FD81900124}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9C6D2096-E85A-443C-8B0F-939B560EF735}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C6D2096-E85A-443C-8B0F-939B560EF735}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C6D2096-E85A-443C-8B0F-939B560EF735}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C6D2096-E85A-443C-8B0F-939B560EF735}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4F30725-7844-4F64-B697-9DEB373E1ACA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4F30725-7844-4F64-B697-9DEB373E1ACA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4F30725-7844-4F64-B697-9DEB373E1ACA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4F30725-7844-4F64-B697-9DEB373E1ACA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76F4A467-06D2-418A-B959-5AD470A08FB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76F4A467-06D2-418A-B959-5AD470A08FB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76F4A467-06D2-418A-B959-5AD470A08FB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76F4A467-06D2-418A-B959-5AD470A08FB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89734822-94D1-46B1-84F4-49FD81900124}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89734822-94D1-46B1-84F4-49FD81900124}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89734822-94D1-46B1-84F4-49FD81900124}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89734822-94D1-46B1-84F4-49FD81900124}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3127540D-9F01-436C-A202-0F27F3BB3238}
+	EndGlobalSection
+EndGlobal
