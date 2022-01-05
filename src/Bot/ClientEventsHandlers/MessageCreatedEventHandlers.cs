@@ -26,7 +26,7 @@ public class MessageCreatedEventHandlers
     /// <param name="sender"></param>
     /// <param name="e"></param>
     /// <returns></returns>
-    internal async Task EventPosted(DiscordClient sender, MessageCreateEventArgs e)
+    internal async Task EventPosted_MakeEvent(DiscordClient sender, MessageCreateEventArgs e)
     {
         //Webhook pubblicazione eventi
         if (e.Channel.Id == IvaoItBot.Config!.AnnouncementsChannelId)
@@ -49,6 +49,21 @@ public class MessageCreatedEventHandlers
 
                 var ev = await evt.AddToGuildAsync(guild);
             }
+        }
+    }
+
+    /// <summary>
+    /// Crossposta ogni messaggio che viene postato nel canale annunci
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    /// <returns></returns>
+    internal async Task EventPosted_Crosspost(DiscordClient sender, MessageCreateEventArgs e)
+    {
+        //Webhook pubblicazione eventi
+        if (e.Channel.Id == IvaoItBot.Config!.AnnouncementsChannelId)
+        {
+            await e.Message.Channel.CrosspostMessageAsync(e.Message);
         }
     }
 

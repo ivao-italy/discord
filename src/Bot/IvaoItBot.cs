@@ -62,7 +62,8 @@ public class IvaoItBot
         using var scope = _serviceScopeFactory.CreateScope();
         var handlers = scope.ServiceProvider.GetRequiredService<MessageCreatedEventHandlers>();
         _client.MessageCreated += handlers.UserActivation;
-        _client.MessageCreated += handlers.EventPosted;
+        _client.MessageCreated += handlers.EventPosted_MakeEvent;
+        _client.MessageCreated += handlers.EventPosted_Crosspost;
 
         try
         {
