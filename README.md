@@ -6,14 +6,14 @@ Project made with ❤️ by IVAO Italy division.
 Automations introduced by the Bot:
 1.  Automation of the policy acceptance flow linking IVAO Account to the Discord Account
 2. Storing the policy acceptance date/time
-3. Automatic posting of Exam/Training events on the Discord server
+3. Automatic posting of Exam/Training events on the Discord server with events crosspostiing
 4. The bot allows to post rules and regulation in a structured way
 5. ... and many more to come!
 
 #### Discord Permission Requirements
 1. `CHANGE_NICKNAME` `MANAGE_NICKNAMES` `VIEW_CHANNEL` `READ_MESSAGE_HISTORY`
-3. [Events management permissions](https://discord.com/developers/docs/resources/guild-scheduled-event#permissions-to-create-an-event-with-entitytype-stageinstance) + [Read and Create Messages](https://discord.com/developers/docs/resources/guild-scheduled-event#permissions-to-create-an-event-with-entitytype-stageinstance)
-4. `VIEW_CHANNEL` `READ_MESSAGE_HISTORY``EMBED_LINKS` `ATTACH_FILES` `SEND_MESSAGES`
+3. [Events management permissions](https://discord.com/developers/docs/resources/guild-scheduled-event#permissions-to-create-an-event-with-entitytype-stageinstance) + [Read and Create Messages](https://discord.com/developers/docs/resources/guild-scheduled-event#permissions-to-create-an-event-with-entitytype-stageinstance) + [Message Crossposting](https://discord.com/developers/docs/resources/channel#crosspost-message)
+4. `VIEW_CHANNEL` `READ_MESSAGE_HISTORY` `EMBED_LINKS` `ATTACH_FILES` `SEND_MESSAGES`
 
 ### Events/Training auto post specifications
 Remember that the Bot is operating "by convention" when posting an Exam/Training on the server.
