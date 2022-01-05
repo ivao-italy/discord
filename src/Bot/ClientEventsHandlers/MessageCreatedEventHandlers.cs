@@ -52,6 +52,7 @@ public class MessageCreatedEventHandlers
         }
     }
 
+
     /// <summary>
     /// Crossposta ogni messaggio che viene postato nel canale annunci
     /// </summary>
