@@ -1,7 +1,7 @@
 # IVAO IT Discord Automation
 Project made with ❤️ by IVAO Italy division.
 
-![Website](https://img.shields.io/website?down_color=red&down_message=down&up_color=brightgreen&up_message=up&url=https%3A%2F%2Fdiscord.ivao.it) ![Discord](https://img.shields.io/discord/426318927220441089)
+![GitHub milestone](https://img.shields.io/github/milestones/progress-percent/ivao-italy/discord/1) ![Website](https://img.shields.io/website?down_color=red&down_message=down&up_color=brightgreen&up_message=up&url=https%3A%2F%2Fdiscord.ivao.it) ![Discord](https://img.shields.io/discord/426318927220441089)
 
 Automations introduced by the Bot:
 1.  Automation of the policy acceptance flow linking IVAO Account to the Discord Account
