@@ -3,7 +3,8 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
-using Ivao.It.DiscordBot.ClientEventsHandlers;
+using Ivao.It.DiscordBot.DiscordEventsHandlers;
+using Ivao.It.DiscordBot.ScheduledTasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -24,6 +25,7 @@ public class IvaoItBot
 
     private readonly ILoggerFactory _loggerFactory;
     private readonly IServiceScopeFactory _serviceScopeFactory;
+    private IvaoItBotTasks _tasks;
     private DiscordClient? _client;
 
     /// <summary>
@@ -63,6 +65,9 @@ public class IvaoItBot
 
         _client.Logger.LogInformation("Initializing IVAO IT Bot version {version}", Assembly.GetExecutingAssembly().GetName().Version?.ToString());
 
+        using var scope = _serviceScopeFactory.CreateScope();
+        var commandsNextHandlers = scope.ServiceProvider.GetRequiredService<CommandsNextEventHandlers>();
+
         //Commands
         this.Commands = _client.UseCommandsNext(new CommandsNextConfiguration
         {
@@ -70,13 +75,12 @@ public class IvaoItBot
             EnableMentionPrefix = true,
         });
         this.Commands.RegisterCommands<BotCommands>();
-        this.Commands.CommandExecuted += this.Commands_CommandExecuted;
-        this.Commands.CommandErrored += this.Commands_CommandErrored;
+        this.Commands.CommandExecuted += commandsNextHandlers.Commands_CommandExecuted;
+        this.Commands.CommandErrored += commandsNextHandlers.Commands_CommandErrored;
 
         //Handlers
         _client.Ready += this.Client_Ready;
         _client.ClientErrored += this.Client_Errored;
-        using var scope = _serviceScopeFactory.CreateScope();
         var handlers = scope.ServiceProvider.GetRequiredService<MessageCreatedEventHandlers>();
         _client.MessageCreated += handlers.UserActivation;
         _client.MessageCreated += handlers.EventPosted_MakeEvent;
@@ -99,15 +103,48 @@ public class IvaoItBot
     /// <returns></returns>
     public async Task StopAsync()
     {
+        _tasks.Stop();
+        _client!.Logger.LogWarning("Discord Schedule tasks stopped");
+
         await _client!.DisconnectAsync();
         _client.Logger.LogWarning("Discord Client Disconnected");
     }
 
-    private async Task Client_Errored(DiscordClient sender, ClientErrorEventArgs e)
+
+    /// <summary>
+    /// Checks if Guild has events ready to be started
+    /// </summary>
+    /// <returns></returns>
+    internal async Task CheckEventsToStart()
     {
-        sender.Logger.LogError(e.Exception, "Discord Client Error");
-        await Task.CompletedTask;
+        if (_client == null) return;
+
+        _client.Logger.LogInformation("CheckEventsToStart Invoked");
+
+        var guild = _client.Guilds.Select(g => g.Value).SingleOrDefault();
+        if (guild == null)
+        {
+            _client.Logger.LogWarning("CheckEventsToStart - Guild not found on the client");
+            return;
+        }
+
+        foreach (var evt in await guild.GetEventsAsync())
+        {
+            if ((evt.StartTime - DateTime.Now) <= TimeSpan.Zero)
+            {
+                try
+                {
+                    await guild.StartEventAsync(evt);
+                    _client.Logger.LogDebug("Started event {eventId} - {eventName}", evt.Id, evt.Name);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    _client.Logger.LogError(ex, "Error startig event {eventId} - {eventName}", evt.Id, evt.Name);
+                }
+            }
+        }
     }
+
 
     private async Task Client_Ready(DiscordClient sender, ReadyEventArgs e)
     {
@@ -117,18 +154,17 @@ public class IvaoItBot
 #else
             await sender.UpdateStatusAsync(new DiscordActivity("IVAO Italy", ActivityType.Watching), UserStatus.Online);
 #endif
+
+        //Runs scheduled tasks
+        _tasks = new IvaoItBotTasks(this);
+        _tasks.Run();
+
         await Task.CompletedTask;
     }
 
-    private async Task Commands_CommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)
+    private async Task Client_Errored(DiscordClient sender, ClientErrorEventArgs e)
     {
-        sender.Client.Logger.LogError(e.Exception, "CommandsNext error");
-        await Task.CompletedTask;
-    }
-
-    private async Task Commands_CommandExecuted(CommandsNextExtension sender, CommandExecutionEventArgs e)
-    {
-        sender.Client.Logger.LogInformation("Command '{Name}' executed.", e.Command.Name);
+        sender.Logger.LogError(e.Exception, "Discord Client Error");
         await Task.CompletedTask;
     }
 }

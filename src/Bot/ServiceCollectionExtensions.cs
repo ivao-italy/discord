@@ -1,4 +1,4 @@
-﻿using Ivao.It.DiscordBot.ClientEventsHandlers;
+﻿using Ivao.It.DiscordBot.DiscordEventsHandlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,6 +9,8 @@ public static class ServiceCollectionExtensions
     private static void InjectDI(this IServiceCollection services)
     {
         services.AddScoped<MessageCreatedEventHandlers>();
+        services.AddScoped<CommandsNextEventHandlers>();
+
         services.AddSingleton<IvaoItBot>();
     }
 
