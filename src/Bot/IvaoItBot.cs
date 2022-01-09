@@ -11,8 +11,14 @@ using System.Reflection;
 
 namespace Ivao.It.DiscordBot;
 
+/// <summary>
+/// IVAO IT Bot object instance
+/// </summary>
 public class IvaoItBot
 {
+    /// <summary>
+    /// Config read from json config data
+    /// </summary>
     public static DiscordConfig? Config { get; private set; }
     private CommandsNextExtension? Commands { get; set; }
 
@@ -20,7 +26,13 @@ public class IvaoItBot
     private readonly IServiceScopeFactory _serviceScopeFactory;
     private DiscordClient? _client;
 
-
+    /// <summary>
+    /// Initialize a new bot instance
+    /// </summary>
+    /// <param name="loggerFactory"></param>
+    /// <param name="config"></param>
+    /// <param name="serviceScopeFactory"></param>
+    /// <exception cref="ArgumentNullException"></exception>
     public IvaoItBot(
         ILoggerFactory loggerFactory,
         IOptions<DiscordConfig> config,
@@ -33,6 +45,11 @@ public class IvaoItBot
         Config = config.Value;
     }
 
+
+    /// <summary>
+    /// Runs the bot (with commands init and events handlers)
+    /// </summary>
+    /// <returns></returns>
     public async Task RunAsync()
     {
         _client = new DiscordClient(new DiscordConfiguration
@@ -76,6 +93,10 @@ public class IvaoItBot
         }
     }
 
+    /// <summary>
+    /// Stops the bot execution
+    /// </summary>
+    /// <returns></returns>
     public async Task StopAsync()
     {
         await _client!.DisconnectAsync();
