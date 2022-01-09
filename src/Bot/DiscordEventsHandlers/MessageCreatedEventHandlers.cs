@@ -5,7 +5,7 @@ using Ivao.It.DiscordBot.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
-namespace Ivao.It.DiscordBot.ClientEventsHandlers;
+namespace Ivao.It.DiscordBot.DiscordEventsHandlers;
 
 /// <summary>
 /// Contenitore di handlers per gli eventi del client Discord
