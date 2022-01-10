@@ -145,6 +145,34 @@ public class IvaoItBot
         }
     }
 
+    /// <summary>
+    /// Deletes messages in the annoucement channel posted yesterday
+    /// </summary>
+    /// <returns></returns>
+    internal async Task DeletePastEventsPost()
+    {
+        if (_client == null) return;
+
+
+        var guild = _client.Guilds.Select(g => g.Value).SingleOrDefault();
+        if (guild == null)
+        {
+            _client.Logger.LogWarning("DeletePastEventsPost - Guild not found on the client");
+            return;
+        }
+
+        try
+        {
+            var channel = guild.GetChannel(Config!.AnnouncementsChannelId);
+            var pastMessages = (await channel.GetMessagesAsync()).Where(m => m.Timestamp <= DateTime.Now.Date);
+            await channel.DeleteMessagesAsync(pastMessages);
+            _client.Logger.LogInformation("DeletePastEventsPost Invoked");
+        }
+        catch (Exception ex)
+        {
+            _client.Logger.LogError(ex, "DeletePastEventsPost error");
+        }
+    }
 
     private async Task Client_Ready(DiscordClient sender, ReadyEventArgs e)
     {

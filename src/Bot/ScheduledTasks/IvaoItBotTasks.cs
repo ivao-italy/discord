@@ -21,6 +21,7 @@ public class IvaoItBotTasks
         _tasks = new List<IScheduledTask>
         {
             new CheckEventsToStart { StartDelay = TimeSpan.FromSeconds(5), Period = TimeSpan.FromSeconds(30) },
+            new DeletePastEventsPost { StartDelay = TimeSpan.FromSeconds(5), Period = TimeSpan.FromSeconds(30) }
         };
     }
 
