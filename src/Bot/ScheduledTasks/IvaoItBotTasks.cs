@@ -20,8 +20,13 @@ public class IvaoItBotTasks
     {
         _tasks = new List<IScheduledTask>
         {
+#if DEBUG
             new CheckEventsToStart { StartDelay = TimeSpan.FromSeconds(5), Period = TimeSpan.FromSeconds(30) },
             new DeletePastEventsPost { StartDelay = TimeSpan.FromSeconds(5), Period = TimeSpan.FromSeconds(30) }
+#else
+            new CheckEventsToStart { StartDelay = TimeSpan.FromSeconds(5), Period = TimeSpan.FromMinutes(5) }, //TODO Controlla quando lanciarlo per schedularo sui 15'
+            new DeletePastEventsPost { StartDelay = TimeSpan.FromSeconds(30), Period = TimeSpan.FromHours(1) }
+#endif
         };
     }
 
