@@ -6,6 +6,6 @@ internal interface IScheduledTask
     TimeSpan Period { get; init; }
     public bool IsRunning { get; }
 
-    void Run(IvaoItBot bot);
+    void Run();
     Task Stop();
 }

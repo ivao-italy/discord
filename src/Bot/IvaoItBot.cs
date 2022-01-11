@@ -22,11 +22,11 @@ public class IvaoItBot
     /// </summary>
     public static DiscordConfig? Config { get; private set; }
     private CommandsNextExtension? Commands { get; set; }
+    internal DiscordClient? Client { get; private set; }
 
     private readonly ILoggerFactory _loggerFactory;
     private readonly IServiceScopeFactory _serviceScopeFactory;
     private IvaoItBotTasks _tasks;
-    private DiscordClient? _client;
 
     /// <summary>
     /// Initialize a new bot instance
@@ -54,7 +54,7 @@ public class IvaoItBot
     /// <returns></returns>
     public async Task RunAsync()
     {
-        _client = new DiscordClient(new DiscordConfiguration
+        Client = new DiscordClient(new DiscordConfiguration
         {
             Token = Config!.DiscordToken,
             TokenType = TokenType.Bot,
@@ -63,13 +63,13 @@ public class IvaoItBot
             AutoReconnect = true,
         });
 
-        _client.Logger.LogInformation("Initializing IVAO IT Bot version {version}", Assembly.GetExecutingAssembly().GetName().Version?.ToString());
+        Client.Logger.LogInformation("Initializing IVAO IT Bot version {version}", Assembly.GetExecutingAssembly().GetName().Version?.ToString());
 
         using var scope = _serviceScopeFactory.CreateScope();
         var commandsNextHandlers = scope.ServiceProvider.GetRequiredService<CommandsNextEventHandlers>();
 
         //Commands
-        this.Commands = _client.UseCommandsNext(new CommandsNextConfiguration
+        this.Commands = Client.UseCommandsNext(new CommandsNextConfiguration
         {
             //StringPrefixes = new[] { "/" },
             EnableMentionPrefix = true,
@@ -79,21 +79,21 @@ public class IvaoItBot
         this.Commands.CommandErrored += commandsNextHandlers.Commands_CommandErrored;
 
         //Handlers
-        _client.Ready += this.Client_Ready;
-        _client.ClientErrored += this.Client_Errored;
+        Client.Ready += this.Client_Ready;
+        Client.ClientErrored += this.Client_Errored;
         var handlers = scope.ServiceProvider.GetRequiredService<MessageCreatedEventHandlers>();
-        _client.MessageCreated += handlers.UserActivation;
-        _client.MessageCreated += handlers.EventPosted_MakeEvent;
-        _client.MessageCreated += handlers.EventPosted_Crosspost;
+        Client.MessageCreated += handlers.UserActivation;
+        Client.MessageCreated += handlers.EventPosted_MakeEvent;
+        Client.MessageCreated += handlers.EventPosted_Crosspost;
 
         try
         {
-            await _client.ConnectAsync();
-            _client.Logger.LogWarning("Discord Client Connected");
+            await Client.ConnectAsync();
+            Client.Logger.LogWarning("Discord Client Connected");
         }
         catch (Exception ex) when (ex is UnauthorizedException || ex is BadRequestException || ex is ServerErrorException)
         {
-            _client.Logger.LogError(ex, "Discord Client error");
+            Client.Logger.LogError(ex, "Discord Client error");
         }
     }
 
@@ -104,76 +104,12 @@ public class IvaoItBot
     public async Task StopAsync()
     {
         _tasks.Stop();
-        _client!.Logger.LogWarning("Discord Schedule tasks stopped");
+        Client!.Logger.LogWarning("Discord Schedule tasks stopped");
 
-        await _client!.DisconnectAsync();
-        _client.Logger.LogWarning("Discord Client Disconnected");
+        await Client!.DisconnectAsync();
+        Client.Logger.LogWarning("Discord Client Disconnected");
     }
-
-
-    /// <summary>
-    /// Checks if Guild has events ready to be started
-    /// </summary>
-    /// <returns></returns>
-    internal async Task CheckEventsToStart()
-    {
-        if (_client == null) return;
-
-        _client.Logger.LogInformation("CheckEventsToStart Invoked");
-
-        var guild = _client.Guilds.Select(g => g.Value).SingleOrDefault();
-        if (guild == null)
-        {
-            _client.Logger.LogWarning("CheckEventsToStart - Guild not found on the client");
-            return;
-        }
-
-        foreach (var evt in await guild.GetEventsAsync())
-        {
-            if ((evt.StartTime - DateTime.Now) <= TimeSpan.Zero)
-            {
-                try
-                {
-                    await guild.StartEventAsync(evt);
-                    _client.Logger.LogDebug("Started event {eventId} - {eventName}", evt.Id, evt.Name);
-                }
-                catch (InvalidOperationException ex)
-                {
-                    _client.Logger.LogError(ex, "Error startig event {eventId} - {eventName}", evt.Id, evt.Name);
-                }
-            }
-        }
-    }
-
-    /// <summary>
-    /// Deletes messages in the annoucement channel posted yesterday
-    /// </summary>
-    /// <returns></returns>
-    internal async Task DeletePastEventsPost()
-    {
-        if (_client == null) return;
-
-
-        var guild = _client.Guilds.Select(g => g.Value).SingleOrDefault();
-        if (guild == null)
-        {
-            _client.Logger.LogWarning("DeletePastEventsPost - Guild not found on the client");
-            return;
-        }
-
-        try
-        {
-            var channel = guild.GetChannel(Config!.AnnouncementsChannelId);
-            var pastMessages = (await channel.GetMessagesAsync()).Where(m => m.Timestamp <= DateTime.Now.Date);
-            await channel.DeleteMessagesAsync(pastMessages);
-            _client.Logger.LogInformation("DeletePastEventsPost Invoked");
-        }
-        catch (Exception ex)
-        {
-            _client.Logger.LogError(ex, "DeletePastEventsPost error");
-        }
-    }
-
+    
     private async Task Client_Ready(DiscordClient sender, ReadyEventArgs e)
     {
         sender.Logger.LogWarning("Bot started. Ready!");
