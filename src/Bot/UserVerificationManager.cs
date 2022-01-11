@@ -7,25 +7,6 @@ namespace Ivao.It.DiscordBot;
 
 internal static class UserVerificationManager
 {
-    [Obsolete("Non serve più verificare i nicknames, usa direttamente il flusso di attivazione che passa per l'accettazione del trattamento dei dati")]
-    internal static async Task<bool> VerifyUser(DiscordClient client, DiscordMember member, DiscordGuild guild, string? nickname = null)
-    {
-        if (!member.Roles.Any() && Consts.NicknamePattern.IsMatch(nickname ?? member.Nickname ?? member.Username))
-        {
-            if (!guild.Roles.ContainsKey(IvaoItBot.Config!.VerifiedUsersRoleId))
-            {
-                client.Logger.Log(LogLevel.Error, $"Configuration invalid: the Verified Users Role ID configured was not found on the server");
-
-                return false;
-            }
-            DiscordRole verifiedUsersRole = guild.Roles[IvaoItBot.Config.VerifiedUsersRoleId];
-            await member.GrantRoleAsync(verifiedUsersRole, "IVAO IT Bot - Nickname Correct!");
-            client.Logger.LogDebug("User nickname verified: {nickname}", member);
-            return true;
-        }
-        return false;
-    }
-
     public static async Task<bool> ForceUserVerificationAsync(DiscordClient client, DiscordMember member, DiscordGuild guild, User user)
     {
         //Il bot sta scrivendo
