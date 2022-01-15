@@ -1,4 +1,5 @@
 using AspNet.Security.OAuth.Discord;
+using Ivao.It.Discord.Shared.Services;
 using Ivao.It.DiscordBot.Data;
 using Ivao.It.DiscordLogin;
 using Ivao.It.DiscordLogin.Pages;

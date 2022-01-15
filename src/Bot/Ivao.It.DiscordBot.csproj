@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Data\Ivao.It.DiscordBot.Data.csproj" />
+    <ProjectReference Include="..\Shared\Ivao.It.Discord.Shared.csproj" />
   </ItemGroup>
 
 </Project>

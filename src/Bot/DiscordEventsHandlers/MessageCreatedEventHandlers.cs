@@ -29,7 +29,7 @@ public class MessageCreatedEventHandlers
     internal async Task EventPosted_MakeEvent(DiscordClient sender, MessageCreateEventArgs e)
     {
         //Webhook pubblicazione eventi
-        if (e.Channel.Id == IvaoItBot.Config!.AnnouncementsChannelId)
+        if (e.Channel.Id == IvaoItBot.Config!.AnnouncementsChannelId && e.Author.Id != IvaoItBot.Config.BotUserId)
         {
             var guild = sender.Guilds.SingleOrDefault().Value;
 

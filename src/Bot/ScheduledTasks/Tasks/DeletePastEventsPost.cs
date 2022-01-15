@@ -2,6 +2,9 @@
 
 namespace Ivao.It.DiscordBot.ScheduledTasks.Tasks;
 
+/// <summary>
+/// Deletes past events posts from the announcement channel
+/// </summary>
 internal sealed class DeletePastEventsPost : BaseScheduledTask
 {
     public DeletePastEventsPost(IvaoItBot bot) : base(bot)

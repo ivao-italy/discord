@@ -1,4 +1,5 @@
 ﻿using EmiLab.Toolkit.Mail;
+using Ivao.It.Discord.Shared.Services;
 using Ivao.It.DiscordBot.Data;
 using Ivao.It.DiscordLogin.ApiDto;
 using Ivao.It.DiscordLogin.Services;

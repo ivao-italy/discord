@@ -1,7 +1,7 @@
-﻿namespace Ivao.It.DiscordLogin.Models;
+﻿//namespace Ivao.It.DiscordLogin.Models;
 
-public enum EventType
-{
-    Exam,
-    Training
-}
+//public enum EventType
+//{
+//    Exam,
+//    Training
+//}

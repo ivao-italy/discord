@@ -24,8 +24,8 @@ public class IvaoItBot
     private CommandsNextExtension? Commands { get; set; }
     internal DiscordClient? Client { get; private set; }
 
+    internal readonly IServiceScopeFactory ServiceScopeFactory;
     private readonly ILoggerFactory _loggerFactory;
-    private readonly IServiceScopeFactory _serviceScopeFactory;
     private IvaoItBotTasks _tasks;
 
     /// <summary>
@@ -41,10 +41,12 @@ public class IvaoItBot
         IServiceScopeFactory serviceScopeFactory)
     {
         _loggerFactory = loggerFactory;
-        this._serviceScopeFactory = serviceScopeFactory;
+        this.ServiceScopeFactory = serviceScopeFactory;
 
         if (config == null) throw new ArgumentNullException(nameof(config));
         Config = config.Value;
+
+        _tasks = new IvaoItBotTasks(this);
     }
 
 
@@ -65,7 +67,7 @@ public class IvaoItBot
 
         Client.Logger.LogInformation("Initializing IVAO IT Bot version {version}", Assembly.GetExecutingAssembly().GetName().Version?.ToString());
 
-        using var scope = _serviceScopeFactory.CreateScope();
+        using var scope = this.ServiceScopeFactory.CreateScope();
         var commandsNextHandlers = scope.ServiceProvider.GetRequiredService<CommandsNextEventHandlers>();
 
         //Commands
@@ -120,7 +122,6 @@ public class IvaoItBot
 #endif
 
         //Runs scheduled tasks
-        _tasks = new IvaoItBotTasks(this);
         _tasks.Run();
 
         await Task.CompletedTask;
