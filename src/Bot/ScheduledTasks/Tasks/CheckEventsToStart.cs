@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using DSharpPlus.Entities;
+using Microsoft.Extensions.Logging;
+using Quartz;
 
 namespace Ivao.It.DiscordBot.ScheduledTasks.Tasks;
 
@@ -6,22 +8,17 @@ namespace Ivao.It.DiscordBot.ScheduledTasks.Tasks;
 /// Checks if Guild has events ready to be started
 /// </summary>
 /// <returns></returns>
-internal sealed class CheckEventsToStart : BaseScheduledTask
+public sealed class CheckEventsToStart : IJob
 {
-    public CheckEventsToStart(IvaoItBot bot)
-        : base(bot)
-    { }
-
     /// <summary>
     /// Checks if Guild has events ready to be started
     /// </summary>
     /// <returns></returns>
-    protected async override Task DoTaskAsync()
+    public async Task Execute(IJobExecutionContext context)
     {
-        var client = this.Bot.Client;
+        var client = ((IvaoItBot)context.Scheduler.Context.Get("Bot")).Client;
         if (client == null) return;
 
-        client.Logger.LogInformation("CheckEventsToStart Invoked");
 
         var guild = client.Guilds.Select(g => g.Value).SingleOrDefault();
         if (guild == null)
@@ -30,13 +27,15 @@ internal sealed class CheckEventsToStart : BaseScheduledTask
             return;
         }
 
+        int started = 0;
         foreach (var evt in await guild.GetEventsAsync())
         {
-            if ((evt.StartTime - DateTime.Now) <= TimeSpan.Zero)
+            if (evt.Status == ScheduledGuildEventStatus.Scheduled && (evt.StartTime - DateTime.Now) <= TimeSpan.Zero)
             {
                 try
                 {
                     await guild.StartEventAsync(evt);
+                    started++;
                     client.Logger.LogDebug("Started event {eventId} - {eventName}", evt.Id, evt.Name);
                 }
                 catch (InvalidOperationException ex)
@@ -45,5 +44,6 @@ internal sealed class CheckEventsToStart : BaseScheduledTask
                 }
             }
         }
+        client.Logger.LogInformation("CheckEventsToStart Invoked. Items affected: {items}", started);
     }
 }

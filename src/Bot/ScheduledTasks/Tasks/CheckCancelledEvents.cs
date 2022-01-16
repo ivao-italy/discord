@@ -4,25 +4,25 @@ using Ivao.It.Discord.Shared.Services;
 using Ivao.It.DiscordBot.Data;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Reflection;
+using Quartz;
 
 namespace Ivao.It.DiscordBot.ScheduledTasks.Tasks;
 
-internal class CheckCancelledEvents : BaseScheduledTask
+/// <summary>
+/// Checks if any of the posted exams/trainings for today have been cancelled. If so, announces the cancellation and deletes the related Guild Scheduled Event
+/// </summary>
+internal class CheckCancelledEvents : IJob
 {
-    public CheckCancelledEvents(IvaoItBot bot) : base(bot)
+    public async Task Execute(IJobExecutionContext context)
     {
-    }
+        var bot = (IvaoItBot)context.Scheduler.Context.Get("Bot");
+        if (bot.Client == null) return;
 
-    protected override async Task DoTaskAsync()
-    {
-        var client = this.Bot.Client;
-        if (client == null) return;
 
-        var guild = client.Guilds.Select(g => g.Value).SingleOrDefault();
+        var guild = bot.Client.Guilds.Select(g => g.Value).SingleOrDefault();
         if (guild == null)
         {
-            client.Logger.LogWarning("CheckCancelledEvents - Guild not found on the client");
+            bot.Client.Logger.LogWarning("CheckCancelledEvents - Guild not found on the client");
             return;
         }
 
@@ -44,45 +44,49 @@ internal class CheckCancelledEvents : BaseScheduledTask
                     }
                 }
             }
-            if (postedEvents.Count == 0) return;
 
-
-            //All the events in the DB
-            var scopeSp = this.Bot.ServiceScopeFactory.CreateScope().ServiceProvider;
-            var db = scopeSp.GetRequiredService<DiscordDbContext>();
-            var examTrainings = (await scopeSp.GetRequiredService<ITrainingAndExamsService>()
-                .GetPlannedAsync(db, DateOnly.FromDateTime(DateTime.Today)))
-                .Select(e => e.Facility);
-
-            //Calculate what Training/Exams have been deleted/postponed (not happening today)
-            var cancellationsToBeAnnounced = postedEvents
-                .Where(pe => examTrainings.All(x => x != pe.Key))
-                .ToDictionary(k => k.Key, v => v.Value);
-
-            //Annuncement of the cancellation and cancellation of the Guild scheduled event
-            var events = await guild.GetEventsAsync();
-            var builder = new DiscordMessageBuilder();
-            foreach (var toBeCancelled in cancellationsToBeAnnounced)
+            int itemsCancelled = 0;
+            if (postedEvents.Count != 0)
             {
-                builder.AddEmbed(await DiscordEmbedHelper.GetEmbedWarning(
-                    guild,
-                    $"{toBeCancelled.Value} @ {toBeCancelled.Key} rimandato/cancellato!", 
-                    "Attenzione! L'evento in oggetto, questa sera, non avrà luogo! Ci scusiamo per il disagio!"));
+                //All the events in the DB
+                var scopeSp = bot.ServiceScopeFactory.CreateScope().ServiceProvider;
+                var db = scopeSp.GetRequiredService<DiscordDbContext>();
+                var examTrainings = (await scopeSp.GetRequiredService<ITrainingAndExamsService>()
+                        .GetPlannedAsync(db, DateOnly.FromDateTime(DateTime.Today)))
+                    .Select(e => e.Facility);
 
-                var evt = events.SingleOrDefault(e => e.Name.Contains(toBeCancelled.Key));
-                if (evt != null) await guild.CancelEventAsync(evt);
+                //Calculate what Training/Exams have been deleted/postponed (not happening today)
+                var cancellationsToBeAnnounced = postedEvents
+                    .Where(pe => examTrainings.All(x => x != pe.Key))
+                    .ToDictionary(k => k.Key, v => v.Value);
+                itemsCancelled = cancellationsToBeAnnounced.Count;
+
+                //Annuncement of the cancellation and cancellation of the Guild scheduled event
+                var events = await guild.GetEventsAsync();
+                var builder = new DiscordMessageBuilder();
+                foreach (var toBeCancelled in cancellationsToBeAnnounced)
+                {
+                    builder.AddEmbed(await DiscordEmbedHelper.GetEmbedWarning(
+                        guild,
+                        $"{toBeCancelled.Value} @ {toBeCancelled.Key} rimandato/cancellato!",
+                        "Attenzione! L'evento in oggetto, questa sera, non avrà luogo! Ci scusiamo per il disagio!"));
+
+                    var evt = events.SingleOrDefault(e => e.Name.Contains(toBeCancelled.Key));
+                    if (evt != null) await guild.CancelEventAsync(evt);
+                }
+
+                //Auto crossposted by the message handler listening on that channel
+                await builder.SendAsync(channel);
             }
 
-            //Auto crossposted by the message handler listening on that channel
-            await builder.SendAsync(channel);
-
-            client.Logger.LogInformation("CheckCancelledEvents Invoked");
+            bot.Client.Logger.LogInformation("CheckCancelledEvents Invoked. Items affected: {items}", itemsCancelled);
         }
         catch (Exception ex)
         {
-            client.Logger.LogError(ex, "CheckCancelledEvents error");
+            bot.Client.Logger.LogError(ex, "CheckCancelledEvents error");
         }
     }
+
 
     private EventType GetTypeFromTitle(string title)
     {
@@ -92,4 +96,5 @@ internal class CheckCancelledEvents : BaseScheduledTask
             return EventType.Training;
         throw new ArgumentOutOfRangeException(nameof(title), "Title not in correct format");
     }
+
 }

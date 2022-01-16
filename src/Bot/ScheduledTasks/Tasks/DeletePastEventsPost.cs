@@ -1,21 +1,17 @@
 ﻿using Microsoft.Extensions.Logging;
+using Quartz;
 
 namespace Ivao.It.DiscordBot.ScheduledTasks.Tasks;
 
 /// <summary>
 /// Deletes past events posts from the announcement channel
 /// </summary>
-internal sealed class DeletePastEventsPost : BaseScheduledTask
+internal sealed class DeletePastEventsPost : IJob
 {
-    public DeletePastEventsPost(IvaoItBot bot) : base(bot)
+    public async Task Execute(IJobExecutionContext context)
     {
-    }
-
-    protected async override Task DoTaskAsync()
-    {
-        var client = this.Bot.Client;
+        var client = ((IvaoItBot)context.Scheduler.Context.Get("Bot")).Client;
         if (client == null) return;
-
 
         var guild = client.Guilds.Select(g => g.Value).SingleOrDefault();
         if (guild == null)
@@ -27,9 +23,12 @@ internal sealed class DeletePastEventsPost : BaseScheduledTask
         try
         {
             var channel = guild.GetChannel(IvaoItBot.Config!.AnnouncementsChannelId);
-            var pastMessages = (await channel.GetMessagesAsync()).Where(m => m.Timestamp <= DateTime.Now.Date);
-            await channel.DeleteMessagesAsync(pastMessages);
-            client.Logger.LogInformation("DeletePastEventsPost Invoked");
+            var pastMessages = (await channel.GetMessagesAsync()).Where(m => m.Timestamp <= DateTime.Now.Date).ToList();
+            if (pastMessages.Any())
+            {
+                await channel.DeleteMessagesAsync(pastMessages);
+            }
+            client.Logger.LogInformation("DeletePastEventsPost Invoked. Items affected: {items}", pastMessages.Count);
         }
         catch (Exception ex)
         {

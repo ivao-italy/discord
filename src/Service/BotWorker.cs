@@ -4,7 +4,6 @@ public class BotWorker : BackgroundService
 {
     private readonly ILogger<BotWorker> _logger;
     private readonly IvaoItBot _bot;
-    private static Timer EventsStartTimer;
 
     public BotWorker(ILogger<BotWorker> logger, IvaoItBot bot)
     {
@@ -16,7 +15,6 @@ public class BotWorker : BackgroundService
     {
         _logger.LogInformation("Starting IVAO IT Discord Bot at: {time}", DateTimeOffset.Now);
 
-        //EventsStartTimer = new(async _ => await this._bot.CheckEventsToStart(), null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(30));
         await _bot.RunAsync();
     }
 

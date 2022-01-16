@@ -6,6 +6,7 @@ using DSharpPlus.Exceptions;
 using Ivao.It.DiscordBot.DiscordEventsHandlers;
 using Ivao.It.DiscordBot.ScheduledTasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Reflection;
@@ -26,7 +27,7 @@ public class IvaoItBot
 
     internal readonly IServiceScopeFactory ServiceScopeFactory;
     private readonly ILoggerFactory _loggerFactory;
-    private IvaoItBotTasks _tasks;
+    private readonly IvaoItBotTasks _tasks;
 
     /// <summary>
     /// Initialize a new bot instance
@@ -38,7 +39,8 @@ public class IvaoItBot
     public IvaoItBot(
         ILoggerFactory loggerFactory,
         IOptions<DiscordConfig> config,
-        IServiceScopeFactory serviceScopeFactory)
+        IServiceScopeFactory serviceScopeFactory,
+        IHostEnvironment environment)
     {
         _loggerFactory = loggerFactory;
         this.ServiceScopeFactory = serviceScopeFactory;
@@ -46,7 +48,7 @@ public class IvaoItBot
         if (config == null) throw new ArgumentNullException(nameof(config));
         Config = config.Value;
 
-        _tasks = new IvaoItBotTasks(this);
+        _tasks = new IvaoItBotTasks(this, environment);
     }
 
 
@@ -105,26 +107,45 @@ public class IvaoItBot
     /// <returns></returns>
     public async Task StopAsync()
     {
-        _tasks.Stop();
-        Client!.Logger.LogWarning("Discord Schedule tasks stopped");
+        try
+        {
+            await _tasks.Stop();
+            Client!.Logger.LogWarning("Discord Schedule tasks stopped");
 
-        await Client!.DisconnectAsync();
-        Client.Logger.LogWarning("Discord Client Disconnected");
+            await Client!.DisconnectAsync();
+            Client.Logger.LogWarning("Discord Client Disconnected");
+        }
+        catch (Exception e)
+        {
+            Client!.Logger.LogError(e, "Error stopping the bot");
+            throw;
+        }
+
     }
-    
+
+
     private async Task Client_Ready(DiscordClient sender, ReadyEventArgs e)
     {
         sender.Logger.LogWarning("Bot started. Ready!");
 #if DEBUG
         await sender.UpdateStatusAsync(new DiscordActivity($"IVAO Italy DEV {sender.VersionString}", ActivityType.Watching), UserStatus.Online);
 #else
-            await sender.UpdateStatusAsync(new DiscordActivity("IVAO Italy", ActivityType.Watching), UserStatus.Online);
+        await sender.UpdateStatusAsync(new DiscordActivity("IVAO Italy", ActivityType.Watching), UserStatus.Online);
 #endif
 
         //Runs scheduled tasks
-        _tasks.Run();
-
-        await Task.CompletedTask;
+        try
+        {
+#pragma warning disable CS4014
+            _tasks.RunAsync();
+#pragma warning restore CS4014
+            sender.Logger.LogWarning("Bot scheduled tasks started.");
+        }
+        catch (Exception ex)
+        {
+            sender.Logger.LogError(ex, "Error starting Bot scheduled tasks.");
+            throw;
+        }
     }
 
     private async Task Client_Errored(DiscordClient sender, ClientErrorEventArgs e)

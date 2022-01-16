@@ -1,58 +1,56 @@
-﻿using Ivao.It.DiscordBot.ScheduledTasks.Tasks;
+﻿using Microsoft.Extensions.Hosting;
+using Quartz;
+using Quartz.Impl;
 
 namespace Ivao.It.DiscordBot.ScheduledTasks;
 
-public class IvaoItBotTasks
+/// <summary>
+/// Quartz wrapper for IVAO IT Bot scheduled jobs
+/// </summary>
+internal class IvaoItBotTasks
 {
-    private static IvaoItBot? _bot;
-    private static List<IScheduledTask>? _tasks;
-    private static bool _areTaskDisposed;
+    private readonly IvaoItBot? _bot;
+    private readonly IHostEnvironment _environment;
 
-    public int RunningTasks = _tasks?.Count ?? 0;
+    private IScheduler? _scheduler;
 
-    internal IvaoItBotTasks(IvaoItBot botInstance)
+    internal IvaoItBotTasks(IvaoItBot botInstance, IHostEnvironment environment)
     {
         _bot = botInstance;
-        Init();
+        _environment = environment;
     }
 
-    public void Init()
+    /// <summary>
+    /// Runs the Jobs
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public async Task RunAsync(CancellationToken cancellationToken = default)
     {
         if (_bot is null) throw new InvalidOperationException("Bot instance is null");
+        if (_environment is null) throw new InvalidOperationException("Environment instance is null");
 
-        _tasks = new List<IScheduledTask>
-        {
-#if DEBUG
-            //new CheckEventsToStart(_bot) { StartDelay = TimeSpan.FromSeconds(5), Period = TimeSpan.FromSeconds(30) },
-            //new DeletePastEventsPost(_bot) { StartDelay = TimeSpan.FromSeconds(5), Period = TimeSpan.FromSeconds(30) }4
-            new CheckCancelledEvents(_bot) { StartDelay = TimeSpan.FromSeconds(5), Period = TimeSpan.FromHours(1) }
-#else
-            new CheckEventsToStart(_bot) { StartDelay = TimeSpan.FromSeconds(5), Period = TimeSpan.FromMinutes(5) }, //TODO Controlla quando lanciarlo per schedularo sui 15'
-            new DeletePastEventsPost(_bot) { StartDelay = TimeSpan.FromSeconds(30), Period = TimeSpan.FromHours(1) }
-#endif
-        };
+        //Configuring the scheduler (with the Bot injected in the context)
+        _scheduler = await (new StdSchedulerFactory()).GetScheduler();
+        await _scheduler.StartDelayed(TimeSpan.FromSeconds(5), cancellationToken);
+        _scheduler.Context.Add("Bot", _bot);
+
+        //Adding the Jobs schedules
+        await _scheduler.AddCheckEventsToStartJobAsync(_environment);
+        await _scheduler.AddDeletePastEventsJobAsync(_environment);
+        await _scheduler.AddCheckCancelledEventsJobAsync(_environment);
     }
 
-    public void Run()
+    /// <summary>
+    /// Stops the jobs
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="NullReferenceException"></exception>
+    public async Task Stop(CancellationToken cancellationToken = default)
     {
-        if (_areTaskDisposed) throw new InvalidOperationException("Scheduled Tasks disposed. Rerun Init()");
-        if (_tasks is null) throw new NullReferenceException("Tasks collection null");
-
-        foreach (var item in _tasks)
-        {
-            if (item.IsRunning) continue;
-            item.Run();
-        }
-    }
-
-    public void Stop()
-    {
-        if (_tasks is null) return;
-
-        foreach (var item in _tasks)
-        {
-            item.Stop();
-        }
-        _areTaskDisposed = true;
+        if (_scheduler is null) throw new NullReferenceException("Instance not initialized");
+        await _scheduler.Shutdown(cancellationToken);
     }
 }
