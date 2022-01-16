@@ -49,6 +49,8 @@ public class EventsController : ControllerBase
         var examTrainings = (await this._service.GetPlannedAsync(_db, DateOnly.FromDateTime(DateTime.Now))).ToList();
         _logger.LogInformation("Events API called. Events found to publish: {count}", examTrainings.Count);
 
+
+        if (examTrainings.Count == 0) return this.Ok();
         var items = DiscordWebHookContent.BuildTemplated(examTrainings);
 
         try

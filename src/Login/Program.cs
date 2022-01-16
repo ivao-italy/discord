@@ -59,7 +59,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddEmail(opt =>
 {
-    opt.SmtpServerAddress = "localhost";
+    opt.SmtpServerAddress = "127.0.0.1";
     opt.SmtpServerPort = 25;
     opt.SenderAccount = "no-reply@ivao.it";
     opt.EnableSsl = false;
