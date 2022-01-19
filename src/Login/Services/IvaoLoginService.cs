@@ -50,17 +50,26 @@ public class IvaoLoginService : ILoginService
     /// <inheritdoc/>
     public async Task StoreDataAsync(User user)
     {
-        //Utente non trovato
-        if (await this._db.Users.AsNoTracking().AnyAsync(u => u.Vid == user.Vid))
+        //Utente già censito trovato
+        var dbUser = await this._db.Users.SingleOrDefaultAsync(u => u.Vid == user.Vid);
+        if (dbUser != null)
         {
-            _logger.LogWarning("User not found on Database: {vid} {firstname} {lastname}", user.Vid, user.FirstName, user.LastName);
-            return;
+            dbUser.FirstName = user.FirstName;
+            dbUser.LastName = user.LastName;
+            dbUser.DiscordUserId = user.DiscordUserId;
+            
+            _logger.LogWarning(
+                "User already in DB. Updating Name/Lastname/DiscordId: {vid} {firstname} {lastname} {discordId} => {newFirstname} {newLastname} {newDiscordId}",
+                dbUser.Vid, dbUser.FirstName, dbUser.LastName, dbUser.DiscordUserId, user.FirstName, user.LastName, user.DiscordUserId);
+        }
+        else
+        {
+            //Creazione utente db per generare il nickname Discord e salvare il consenso al trattamento dei dati
+            await this._db.Users.AddAsync(user);
         }
 
         try
         {
-            //Creazione utente db per generare il nickname Discord e salvare il consenso al trattamento dei dati
-            await this._db.Users.AddAsync(user);
             await this._db.SaveChangesAsync();
         }
         catch (Exception ex)
