@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>2222a38c-982c-44b0-be9d-52a47443774a</UserSecretsId>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Data\Ivao.It.DiscordBot.Data.csproj" />
+    <ProjectReference Include="..\Shared\Ivao.It.Discord.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

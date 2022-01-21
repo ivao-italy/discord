@@ -3,39 +3,62 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
-using Ivao.It.DiscordBot.ClientEventsHandlers;
+using Ivao.It.DiscordBot.DiscordEventsHandlers;
+using Ivao.It.DiscordBot.ScheduledTasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Reflection;
 
 namespace Ivao.It.DiscordBot;
 
+/// <summary>
+/// IVAO IT Bot object instance
+/// </summary>
 public class IvaoItBot
 {
+    /// <summary>
+    /// Config read from json config data
+    /// </summary>
     public static DiscordConfig? Config { get; private set; }
     private CommandsNextExtension? Commands { get; set; }
+    internal DiscordClient? Client { get; private set; }
 
+    internal readonly IServiceScopeFactory ServiceScopeFactory;
     private readonly ILoggerFactory _loggerFactory;
-    private readonly IServiceScopeFactory _serviceScopeFactory;
-    private DiscordClient? _client;
+    private readonly IvaoItBotTasks _tasks;
 
-
+    /// <summary>
+    /// Initialize a new bot instance
+    /// </summary>
+    /// <param name="loggerFactory"></param>
+    /// <param name="config"></param>
+    /// <param name="serviceScopeFactory"></param>
+    /// <exception cref="ArgumentNullException"></exception>
     public IvaoItBot(
         ILoggerFactory loggerFactory,
         IOptions<DiscordConfig> config,
-        IServiceScopeFactory serviceScopeFactory)
+        IServiceScopeFactory serviceScopeFactory,
+        IHostEnvironment environment)
     {
         _loggerFactory = loggerFactory;
-        this._serviceScopeFactory = serviceScopeFactory;
+        this.ServiceScopeFactory = serviceScopeFactory;
 
         if (config == null) throw new ArgumentNullException(nameof(config));
         Config = config.Value;
+
+        _tasks = new IvaoItBotTasks(this, environment);
     }
 
+
+    /// <summary>
+    /// Runs the bot (with commands init and events handlers)
+    /// </summary>
+    /// <returns></returns>
     public async Task RunAsync()
     {
-        _client = new DiscordClient(new DiscordConfiguration
+        Client = new DiscordClient(new DiscordConfiguration
         {
             Token = Config!.DiscordToken,
             TokenType = TokenType.Bot,
@@ -44,48 +67,62 @@ public class IvaoItBot
             AutoReconnect = true,
         });
 
-        _client.Logger.LogInformation("Initializing IVAO IT Bot version {version}", Assembly.GetExecutingAssembly().GetName().Version?.ToString());
+        Client.Logger.LogInformation("Initializing IVAO IT Bot version {version}", Assembly.GetExecutingAssembly().GetName().Version?.ToString());
+
+        using var scope = this.ServiceScopeFactory.CreateScope();
+        var commandsNextHandlers = scope.ServiceProvider.GetRequiredService<CommandsNextEventHandlers>();
 
         //Commands
-        this.Commands = _client.UseCommandsNext(new CommandsNextConfiguration
+        this.Commands = Client.UseCommandsNext(new CommandsNextConfiguration
         {
             //StringPrefixes = new[] { "/" },
             EnableMentionPrefix = true,
         });
         this.Commands.RegisterCommands<BotCommands>();
-        this.Commands.CommandExecuted += this.Commands_CommandExecuted;
-        this.Commands.CommandErrored += this.Commands_CommandErrored;
+        this.Commands.CommandExecuted += commandsNextHandlers.Commands_CommandExecuted;
+        this.Commands.CommandErrored += commandsNextHandlers.Commands_CommandErrored;
 
         //Handlers
-        _client.Ready += this.Client_Ready;
-        _client.ClientErrored += this.Client_Errored;
-        using var scope = _serviceScopeFactory.CreateScope();
+        Client.Ready += this.Client_Ready;
+        Client.ClientErrored += this.Client_Errored;
         var handlers = scope.ServiceProvider.GetRequiredService<MessageCreatedEventHandlers>();
-        _client.MessageCreated += handlers.UserActivation;
-        _client.MessageCreated += handlers.EventPosted;
+        Client.MessageCreated += handlers.UserActivation;
+        Client.MessageCreated += handlers.EventPosted_MakeEvent;
+        Client.MessageCreated += handlers.EventPosted_Crosspost;
 
         try
         {
-            await _client.ConnectAsync();
-            _client.Logger.LogWarning("Discord Client Connected");
+            await Client.ConnectAsync();
+            Client.Logger.LogWarning("Discord Client Connected");
         }
         catch (Exception ex) when (ex is UnauthorizedException || ex is BadRequestException || ex is ServerErrorException)
         {
-            _client.Logger.LogError(ex, "Discord Client error");
+            Client.Logger.LogError(ex, "Discord Client error");
         }
     }
 
+    /// <summary>
+    /// Stops the bot execution
+    /// </summary>
+    /// <returns></returns>
     public async Task StopAsync()
     {
-        await _client!.DisconnectAsync();
-        _client.Logger.LogWarning("Discord Client Disconnected");
+        try
+        {
+            await _tasks.Stop();
+            Client!.Logger.LogWarning("Discord Schedule tasks stopped");
+
+            await Client!.DisconnectAsync();
+            Client.Logger.LogWarning("Discord Client Disconnected");
+        }
+        catch (Exception e)
+        {
+            Client!.Logger.LogError(e, "Error stopping the bot");
+            throw;
+        }
+
     }
 
-    private async Task Client_Errored(DiscordClient sender, ClientErrorEventArgs e)
-    {
-        sender.Logger.LogError(e.Exception, "Discord Client Error");
-        await Task.CompletedTask;
-    }
 
     private async Task Client_Ready(DiscordClient sender, ReadyEventArgs e)
     {
@@ -93,20 +130,27 @@ public class IvaoItBot
 #if DEBUG
         await sender.UpdateStatusAsync(new DiscordActivity($"IVAO Italy DEV {sender.VersionString}", ActivityType.Watching), UserStatus.Online);
 #else
-            await sender.UpdateStatusAsync(new DiscordActivity("IVAO Italy", ActivityType.Watching), UserStatus.Online);
+        await sender.UpdateStatusAsync(new DiscordActivity("IVAO Italy", ActivityType.Watching), UserStatus.Online);
 #endif
-        await Task.CompletedTask;
+
+        //Runs scheduled tasks
+        try
+        {
+#pragma warning disable CS4014
+            _tasks.RunAsync();
+#pragma warning restore CS4014
+            sender.Logger.LogWarning("Bot scheduled tasks started.");
+        }
+        catch (Exception ex)
+        {
+            sender.Logger.LogError(ex, "Error starting Bot scheduled tasks.");
+            throw;
+        }
     }
 
-    private async Task Commands_CommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)
+    private async Task Client_Errored(DiscordClient sender, ClientErrorEventArgs e)
     {
-        sender.Client.Logger.LogError(e.Exception, "CommandsNext error");
-        await Task.CompletedTask;
-    }
-
-    private async Task Commands_CommandExecuted(CommandsNextExtension sender, CommandExecutionEventArgs e)
-    {
-        sender.Client.Logger.LogInformation("Command '{Name}' executed.", e.Command.Name);
+        sender.Logger.LogError(e.Exception, "Discord Client Error");
         await Task.CompletedTask;
     }
 }

@@ -1,4 +1,5 @@
 using AspNet.Security.OAuth.Discord;
+using Ivao.It.Discord.Shared.Services;
 using Ivao.It.DiscordBot.Data;
 using Ivao.It.DiscordLogin;
 using Ivao.It.DiscordLogin.Pages;
@@ -58,7 +59,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddEmail(opt =>
 {
-    opt.SmtpServerAddress = "localhost";
+    opt.SmtpServerAddress = "127.0.0.1";
     opt.SmtpServerPort = 25;
     opt.SenderAccount = "no-reply@ivao.it";
     opt.EnableSsl = false;

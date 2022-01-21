@@ -1,4 +1,5 @@
-﻿using Ivao.It.DiscordLogin.Models;
+﻿using Ivao.It.Discord.Shared;
+using Ivao.It.Discord.Shared.Models;
 
 namespace Ivao.It.DiscordLogin.ApiDto;
 
@@ -82,19 +83,5 @@ public class DiscordWebHookContent
 
         private static string RatingToStars(AtcRating rating)
              => string.Join("", Enumerable.Range(0, (int)rating - 4).Select(r => ":star:"));
-
-        //private static string RatingToStars(AtcRating rating) => rating switch
-        //{
-        //    AtcRating.ADC => ":star:",
-        //    AtcRating.APC => ":star::star:",
-        //    AtcRating.ACC => ":star::star::star:",
-        //    _ => throw new ArgumentOutOfRangeException(nameof(rating), $"Not expected direction value: {rating}"),
-        //};
-
-        public enum EmbedColor
-        {
-            Blue = 863385,
-            Red = 13369344,
-        }
     }
 }

@@ -16,7 +16,6 @@ IHost host = Host.CreateDefaultBuilder(args)
     {
         services.AddHostedService<BotWorker>();
         services.AddIvaoItBot(hostContext.Configuration.GetSection("DiscordConfig"));
-        
         services.AddDbContextFactory<DiscordDbContext>(opt =>
         {
             var connectionString = hostContext.Configuration.GetConnectionString("DiscordBot");
