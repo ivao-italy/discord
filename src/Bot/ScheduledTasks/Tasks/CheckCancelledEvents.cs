@@ -30,17 +30,19 @@ internal class CheckCancelledEvents : IJob
         {
             //All the events posted in the channel
             var channel = guild.GetChannel(IvaoItBot.Config!.AnnouncementsChannelId);
-            var postedEvents = new Dictionary<string, EventType>();
+            Dictionary<string, EventType> postedEvents = new();
+            List<string> announcedCancellations = new();
             foreach (var post in (await channel.GetMessagesAsync()).Where(m => m.Timestamp.Date == DateTime.Now.Date))
             {
-                var embedsNotOrangeDescriptions = post.Embeds
-                    .Where(e => e.Color.HasValue && e.Color.Value.Value != DiscordColor.Orange.Value);
-
-                foreach (var emb in embedsNotOrangeDescriptions)
+                foreach (var emb in post.Embeds)
                 {
                     if (Consts.FacilityRegex.IsMatch(emb.Description))
                     {
-                        postedEvents.Add(Consts.FacilityRegex.Match(emb.Description).Value, this.GetTypeFromTitle(emb.Title));
+                        var facility = Consts.FacilityRegex.Match(emb.Description).Value;
+                        if (emb.Color.HasValue && emb.Color.Value.Value != DiscordEmbedHelper.Orange.Value)
+                            postedEvents.Add(facility, this.GetTypeFromTitle(emb.Title));
+                        else
+                            announcedCancellations.Add(facility);
                     }
                 }
             }
@@ -55,9 +57,9 @@ internal class CheckCancelledEvents : IJob
                         .GetPlannedAsync(db, DateOnly.FromDateTime(DateTime.Today)))
                     .Select(e => e.Facility);
 
-                //Calculate what Training/Exams have been deleted/postponed (not happening today)
+                //Calculate what Training/Exams have been deleted/postponed and their cancellation hasn't been already posted (not happening today)
                 var cancellationsToBeAnnounced = postedEvents
-                    .Where(pe => examTrainings.All(x => x != pe.Key))
+                    .Where(pe => examTrainings.All(x => x != pe.Key) && announcedCancellations.All(x => x != pe.Key))
                     .ToDictionary(k => k.Key, v => v.Value);
                 itemsCancelled = cancellationsToBeAnnounced.Count;
 
@@ -68,15 +70,16 @@ internal class CheckCancelledEvents : IJob
                 {
                     builder.AddEmbed(await DiscordEmbedHelper.GetEmbedWarning(
                         guild,
-                        $"{toBeCancelled.Value} @ {toBeCancelled.Key} rimandato/cancellato!",
-                        "Attenzione! L'evento in oggetto, questa sera, non avrà luogo! Ci scusiamo per il disagio!"));
+                        $"{toBeCancelled.Value} rimandato!",
+                        $"Attenzione! L'evento previsto oggi a **{toBeCancelled.Key}** non avrà luogo! Ci scusiamo per il disagio!"));
 
                     var evt = events.SingleOrDefault(e => e.Name.Contains(toBeCancelled.Key));
                     if (evt != null) await guild.CancelEventAsync(evt);
                 }
 
                 //Auto crossposted by the message handler listening on that channel
-                await builder.SendAsync(channel);
+                if (cancellationsToBeAnnounced.Count > 0)
+                    await builder.SendAsync(channel);
             }
 
             bot.Client.Logger.LogInformation("CheckCancelledEvents Invoked. Items affected: {items}", itemsCancelled);
