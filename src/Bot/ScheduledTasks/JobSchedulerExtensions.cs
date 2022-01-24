@@ -21,7 +21,7 @@ internal static class JobSchedulerExtensions
 
         if (environment.IsDevelopment())
         {
-            init.builder.WithSimpleSchedule(s => s.WithIntervalInSeconds(30).RepeatForever());
+            init.builder.WithSimpleSchedule(s => s.WithIntervalInSeconds(5));
         }
         else
         {
@@ -50,7 +50,7 @@ internal static class JobSchedulerExtensions
 
         if (environment.IsDevelopment())
         {
-            init.builder.WithSimpleSchedule(s => s.WithIntervalInSeconds(15).RepeatForever());
+            init.builder.WithSimpleSchedule(s => s.WithIntervalInSeconds(5));
         }
         else
         {
@@ -74,7 +74,7 @@ internal static class JobSchedulerExtensions
 
         if (environment.IsDevelopment())
         {
-            init.builder.WithSimpleSchedule(s => s.WithIntervalInSeconds(45).RepeatForever());
+            init.builder.WithSimpleSchedule(s => s.WithIntervalInSeconds(5));
         }
         else
         {

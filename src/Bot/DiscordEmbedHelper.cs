@@ -4,14 +4,19 @@ namespace Ivao.It.DiscordBot;
 
 internal class DiscordEmbedHelper
 {
+    public static readonly DiscordColor Blue = DiscordColor.DarkBlue;
+    public static readonly DiscordColor Red = DiscordColor.DarkRed;
+    public static readonly DiscordColor Orange = DiscordColor.Orange;
+    public static readonly DiscordColor Green = DiscordColor.Green;
+
     internal static async Task<DiscordEmbed> GetEmbed(DiscordGuild guild, string title, string body)
-        => await GetEmbed(guild, title, body, DiscordColor.DarkBlue);
+        => await GetEmbed(guild, title, body, Blue);
     internal static async Task<DiscordEmbed> GetEmbedError(DiscordGuild guild, string title, string body)
-        => await GetEmbed(guild, title, body, DiscordColor.DarkRed);
+        => await GetEmbed(guild, title, body, Red);
     internal static async Task<DiscordEmbed> GetEmbedWarning(DiscordGuild guild, string title, string body)
-        => await GetEmbed(guild, title, body, DiscordColor.Orange);
+        => await GetEmbed(guild, title, body, Orange);
     internal static async Task<DiscordEmbed> GetEmbedSuccess(DiscordGuild guild, string title, string body)
-        => await GetEmbed(guild, title, body, DiscordColor.DarkGreen);
+        => await GetEmbed(guild, title, body, Green);
 
     private static async Task<DiscordEmbed> GetEmbed(DiscordGuild guild, string title, string body, DiscordColor color) => new DiscordEmbedBuilder()
         .WithColor(color)
