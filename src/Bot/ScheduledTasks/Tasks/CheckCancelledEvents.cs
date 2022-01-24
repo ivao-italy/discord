@@ -76,7 +76,8 @@ internal class CheckCancelledEvents : IJob
                 }
 
                 //Auto crossposted by the message handler listening on that channel
-                await builder.SendAsync(channel);
+                if(cancellationsToBeAnnounced.Count > 0)
+                    await builder.SendAsync(channel);
             }
 
             bot.Client.Logger.LogInformation("CheckCancelledEvents Invoked. Items affected: {items}", itemsCancelled);
