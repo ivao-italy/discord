@@ -54,7 +54,7 @@ internal static class JobSchedulerExtensions
         }
         else
         {
-            init.builder.WithSimpleSchedule(s => s.WithIntervalInMinutes(30));
+            init.builder.WithSimpleSchedule(s => s.WithIntervalInMinutes(30).RepeatForever());
         }
 
         await scheduler.ScheduleJob(init.job, init.builder.Build());
