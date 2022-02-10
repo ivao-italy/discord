@@ -54,7 +54,15 @@ internal static class JobSchedulerExtensions
         }
         else
         {
-            init.builder.WithSimpleSchedule(s => s.WithIntervalInMinutes(30).RepeatForever());
+            init.builder.WithDailyTimeIntervalSchedule(opt =>
+                    opt.InTimeZone(TimeZoneInfo.Utc)
+                        .WithIntervalInMinutes(15)
+                        .OnEveryDay()
+                        .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(8, 0))
+                        .EndingDailyAt(TimeOfDay.HourAndMinuteOfDay(22, 0))
+                    );
+
+            //.WithSimpleSchedule(s => s.WithIntervalInMinutes(30).RepeatForever());
         }
 
         await scheduler.ScheduleJob(init.job, init.builder.Build());
@@ -89,7 +97,7 @@ internal static class JobSchedulerExtensions
 
         await scheduler.ScheduleJob(init.job, init.builder.Build());
     }
-    
+
     private static (IJobDetail job, TriggerBuilder builder) CreateJobAndTriggerBuilder<T>() where T : IJob
     {
         IJobDetail job = JobBuilder.Create<T>()

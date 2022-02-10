@@ -5,12 +5,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Copyright>Emiliano Innocenti</Copyright>
-    <Version>1.2.1</Version>
+    <Version>1.2.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.2.0-nightly-01063" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.2.0-nightly-01063" />
+    <PackageReference Include="DSharpPlus" Version="4.2.0-nightly-01067" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.2.0-nightly-01067" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
