@@ -3,6 +3,7 @@ using System;
 using Ivao.It.DiscordBot.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Ivao.It.DiscordBot.Data.Migrations
 {
     [DbContext(typeof(DiscordDbContext))]
-    partial class DiscordDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220412150613_Events-Scaffolding")]
+    partial class EventsScaffolding
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
