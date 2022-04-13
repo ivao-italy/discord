@@ -3,6 +3,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
+using Ivao.It.DiscordBot.Commands;
 using Ivao.It.DiscordBot.DiscordEventsHandlers;
 using Ivao.It.DiscordBot.ScheduledTasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -63,24 +64,16 @@ public class IvaoItBot
             Token = Config!.DiscordToken,
             TokenType = TokenType.Bot,
             LoggerFactory = _loggerFactory,
-            Intents = DiscordIntents.Guilds | DiscordIntents.GuildMembers | DiscordIntents.GuildMessages | DiscordIntents.GuildMembers | DiscordIntents.ScheduledGuildEvents,
+            Intents = DiscordIntents.Guilds | DiscordIntents.GuildMessages | DiscordIntents.GuildMembers | DiscordIntents.ScheduledGuildEvents,
             AutoReconnect = true,
         });
 
         Client.Logger.LogInformation("Initializing IVAO IT Bot version {version}", Assembly.GetExecutingAssembly().GetName().Version?.ToString());
 
         using var scope = this.ServiceScopeFactory.CreateScope();
-        var commandsNextHandlers = scope.ServiceProvider.GetRequiredService<CommandsNextEventHandlers>();
 
         //Commands
-        this.Commands = Client.UseCommandsNext(new CommandsNextConfiguration
-        {
-            //StringPrefixes = new[] { "/" },
-            EnableMentionPrefix = true,
-        });
-        this.Commands.RegisterCommands<BotCommands>();
-        this.Commands.CommandExecuted += commandsNextHandlers.Commands_CommandExecuted;
-        this.Commands.CommandErrored += commandsNextHandlers.Commands_CommandErrored;
+        Client.UseIvaoCommands(this.ServiceScopeFactory);
 
         //Handlers
         Client.Ready += this.Client_Ready;
