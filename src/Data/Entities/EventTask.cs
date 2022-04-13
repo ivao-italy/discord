@@ -1,9 +1,11 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Diagnostics;
 
 namespace Ivao.It.DiscordBot.Data.Entities;
 
+[DebuggerDisplay("{" + nameof(TaskType) + "}")]
 public class EventTask
 {
     public int Id { get; set; }

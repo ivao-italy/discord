@@ -1,6 +1,7 @@
 ﻿using Ivao.It.Discord.Shared.Services;
 using Ivao.It.DiscordBot.Commands;
 using Ivao.It.DiscordBot.DiscordEventsHandlers;
+using Ivao.It.DiscordBot.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,6 +13,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<MessageCreatedEventHandlers>();
         services.AddScoped<ITrainingAndExamsService, TrainingAndExamsService>();
+        services.AddTransient<EventsService>();
 
         services.AddSingleton<IvaoItBot>();
     }

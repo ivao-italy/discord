@@ -1,16 +1,23 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using Ivao.It.DiscordBot.Data;
-using Ivao.It.DiscordBot.Data.Entities;
+using DSharpPlus.Entities;
 using Ivao.It.DiscordBot.Models.Events;
-using Microsoft.Extensions.DependencyInjection;
+using Ivao.It.DiscordBot.Services;
 using System.Globalization;
+using System.Reflection.Metadata;
 
 
 namespace Ivao.It.DiscordBot.Commands;
 
 internal class EventsWorkflowCommands : IvaoBaseCommandModule
 {
+    private readonly EventsService _service;
+
+    public EventsWorkflowCommands(EventsService service)
+    {
+        _service = service;
+    }
+
     [Command("addevent")]
     [Description("Schedules a new Event to build the appropriate checklist for all the staff members involved")]
     [RequirePermissions(DSharpPlus.Permissions.ManageChannels)]
@@ -24,10 +31,17 @@ internal class EventsWorkflowCommands : IvaoBaseCommandModule
     {
         if (!this.IsChannelCorrect(ctx)) return;
 
+        //Data parsing
         var dt = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
         var tasksArray = tasks
             .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Select(s => s.ToEventsTasks());
+            .Select(s => s.ToEventsTasks())
+            .ToList();
+
+        //Tasks always present
+        tasksArray.Add(EventsTasks.Announcement);
+        tasksArray.Add(EventsTasks.AnnouncementSocial);
+        tasksArray.Add(EventsTasks.Atcs);
 
         //Validations
         //Can be parametrized to the first deadline?
@@ -37,21 +51,13 @@ internal class EventsWorkflowCommands : IvaoBaseCommandModule
                 "Unable to schedule an event later than 30 days before the event itself.");
         }
 
-        var dbTasks = tasksArray.Select(t => new EventTask { TaskTypeId = (short)t }).ToList();
-        if(string.IsNullOrWhiteSpace(forumLink))
-            dbTasks.Add(new EventTask {TaskTypeId = (short)EventsTasks.ForumTopic});
-        dbTasks.Add(new EventTask { TaskTypeId = (short)EventsTasks.Announcement });
-        dbTasks.Add(new EventTask { TaskTypeId = (short)EventsTasks.AnnouncementSocial });
-        var evt = new Event {
-            CreatedByUserId = ctx.User.Id,
-            Date = dt,
-            Name = title,
-            Link = forumLink,
-            Tasks = dbTasks.ToList()
-        };
+        //Store the event
+        //TODO Error management + logging
+        var eventId = await _service.AddEventAsync(ctx.User.Id, title, dt, tasksArray, forumLink);
 
-        var db = ctx.CommandsNext.Services.GetRequiredService<DiscordDbContext>();
-        await db.Events.AddAsync(evt);
-        await db.SaveChangesAsync();
+        //Success Message
+        var evt = await _service.GetEvent(eventId);
+        var embed = await new DiscordEmbedBuilder().CreateEventAsync(evt!, ctx.Guild);
+        await ctx.RespondAsync(embed);
     }
 }

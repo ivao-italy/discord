@@ -9,6 +9,8 @@ public class EventTaskType
     public string Description { get; set; }
     public short DaysBefore { get; set; }
     public ulong StaffGroupToNofify { get; set; }
+
+    public override string ToString() => this.Description;
 }
 
 
@@ -28,7 +30,8 @@ public class EventTaskType_TypeConfig : IEntityTypeConfiguration<EventTaskType>
             new EventTaskType { Id = 3, Description = "Routes", DaysBefore = 15, StaffGroupToNofify = 621792026375094283 },
             new EventTaskType { Id = 4, Description = "Graphics", DaysBefore = 15, StaffGroupToNofify = 963367786715947048 },
             new EventTaskType { Id = 5, Description = "Announcement", DaysBefore = 10, StaffGroupToNofify = 621788428832342036 },
-            new EventTaskType { Id = 6, Description = "Announcement Social", DaysBefore = 10, StaffGroupToNofify = 541216766924423169 }
+            new EventTaskType { Id = 6, Description = "Announcement Social", DaysBefore = 10, StaffGroupToNofify = 541216766924423169 },
+            new EventTaskType { Id = 7, Description = "ATC Bookings", DaysBefore = 2, StaffGroupToNofify = 541216766924423169 }
         );
     }
 }
