@@ -87,7 +87,8 @@ namespace Ivao.It.DiscordBot.Data.Migrations
                     { (short)3, (short)15, "Routes", 621792026375094283ul },
                     { (short)4, (short)15, "Graphics", 963367786715947048ul },
                     { (short)5, (short)10, "Announcement", 621788428832342036ul },
-                    { (short)6, (short)10, "Announcement Social", 541216766924423169ul }
+                    { (short)6, (short)10, "Announcement Social", 541216766924423169ul },
+                    { (short)7, (short)2, "ATC Bookings", 541216766924423169ul }
                 });
 
             migrationBuilder.CreateIndex(

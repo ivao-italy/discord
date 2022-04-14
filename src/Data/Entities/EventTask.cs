@@ -33,5 +33,8 @@ public class EventTaskTypeConfig : IEntityTypeConfiguration<EventTask>
                .WithMany()
                .HasForeignKey(p => p.TaskTypeId)
                .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasIndex(i => new { i.EventId, i.TaskTypeId })
+            .IsUnique();
     }
 }
