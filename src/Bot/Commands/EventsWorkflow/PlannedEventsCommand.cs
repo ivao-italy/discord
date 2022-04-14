@@ -10,11 +10,9 @@ internal partial class EventsCommands
     [Command("planned")]
     [Description("Shows the upcoming events scheduled and their tasks status.")]
     [RequirePermissions(DSharpPlus.Permissions.ManageChannels)]
+    [CheckCallChannel]
     public async Task Planned(CommandContext ctx)
     {
-        if (!this.IsChannelCorrect(ctx)) return;
-        await ctx.TriggerTypingAsync();
-
         var events = await this._service.GetAsync();
 
         var tasks = events.Select(async e => (DiscordEmbed)(await e.ToEmbedAsync(ctx.Guild)));

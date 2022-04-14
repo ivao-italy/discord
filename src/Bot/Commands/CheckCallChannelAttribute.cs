@@ -1,11 +1,11 @@
 ﻿using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
 using Microsoft.Extensions.Logging;
 
 namespace Ivao.It.DiscordBot.Commands;
-
-internal abstract class IvaoBaseCommandModule : BaseCommandModule
+internal class CheckCallChannelAttribute : CheckBaseAttribute
 {
-    protected bool IsChannelCorrect(CommandContext ctx)
+    public override async Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
     {
         if (ctx.Message.ChannelId != IvaoItBot.Config!.BotControlChannelId)
         {
@@ -13,6 +13,7 @@ internal abstract class IvaoBaseCommandModule : BaseCommandModule
             return false;
         }
         ctx.Client.Logger.LogDebug("'{commandName}' command invoked from correct channel", ctx.Command!.Name);
+        await ctx.TriggerTypingAsync();
         return true;
     }
 }

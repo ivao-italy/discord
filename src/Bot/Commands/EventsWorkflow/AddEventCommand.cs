@@ -6,11 +6,13 @@ using System.Globalization;
 
 namespace Ivao.It.DiscordBot.Commands.EventsWorkflow;
 
-internal partial class EventsCommands : IvaoBaseCommandModule
+internal partial class EventsCommands
 {
     [Command("add")]
     [Description("Schedules a new Event to build the appropriate checklist for all the staff members involved")]
     [RequirePermissions(DSharpPlus.Permissions.ManageChannels)]
+    [CheckCallChannel]
+
     public async Task Add(
         CommandContext ctx,
         [Description("Title of the event - Markdown formatting allowed")] string title,
@@ -19,9 +21,6 @@ internal partial class EventsCommands : IvaoBaseCommandModule
         [Description("Forum link - the link of the FS topic. Optional.")] string? forumLink = null
         )
     {
-        if (!this.IsChannelCorrect(ctx)) return;
-        await ctx.TriggerTypingAsync();
-
         //Data parsing
         var dt = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
         var tasksArray = tasks

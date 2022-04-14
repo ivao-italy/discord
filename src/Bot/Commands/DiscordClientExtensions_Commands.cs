@@ -12,13 +12,14 @@ internal static class DiscordClientExtensions_Commands
         var commands = client.UseCommandsNext(new CommandsNextConfiguration
         {
             EnableMentionPrefix = true,
-            Services = serviceScopeFactory.CreateScope().ServiceProvider
+            Services = serviceScopeFactory.CreateScope().ServiceProvider,
         });
 
         //Commands
         //commands.RegisterCommands(Assembly.GetExecutingAssembly()); //Events are not public.
         commands.RegisterCommands<BotCommands>();
         commands.RegisterCommands<EventsCommands>();
+        
         
         //Global Event Handlers
         commands.CommandExecuted += CommandsNextEventHandlers.Commands_CommandExecuted;
