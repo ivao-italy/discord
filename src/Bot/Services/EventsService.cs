@@ -35,9 +35,16 @@ internal class EventsService
         return evt.Id;
     }
 
-    public async Task<Event?> GetEvent(int id) =>
+    public async Task<Event?> GetAsync(int id) =>
         await _db.Events.AsNoTracking()
             .Include(p => p.Tasks)
             .ThenInclude(t => t.TaskType)
             .SingleOrDefaultAsync(e=>e.Id == id);
+
+    public async Task<ICollection<Event>> GetAsync() =>
+        await _db.Events.AsNoTracking()
+            .Include(p => p.Tasks)
+            .ThenInclude(t => t.TaskType)
+            .Where(e => e.Date >= DateTime.UtcNow)
+            .ToListAsync();
 }

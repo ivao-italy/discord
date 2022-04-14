@@ -21,7 +21,7 @@ internal class BotCommands : IvaoBaseCommandModule
         await Task.Delay(3000);
 
         ;
-        await welcomeChannel.SendMessageAsync(embed: await DiscordEmbedHelper.GetEmbed(ctx.Guild, title, ruleText));
+        await welcomeChannel.SendMessageAsync(embed: await DiscordEmbedHelper.GetAsync(ctx.Guild, title, ruleText));
         ctx.Client.Logger.LogInformation("Rule sent: {title}", title);
     }
 }

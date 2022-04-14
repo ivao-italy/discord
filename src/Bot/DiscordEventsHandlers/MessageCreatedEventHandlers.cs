@@ -82,7 +82,7 @@ public class MessageCreatedEventHandlers
             var user = await db.Users.SingleOrDefaultAsync(u => u.DiscordUserId == e.Message.Author.Id);
             if (user == null)
             {
-                var embed = await DiscordEmbedHelper.GetEmbedWarning(e.Guild, "User not recognized", $"We're unable to detect who you are. Please go to {IvaoItBot.Config.DiscordAccessWizardHomepage}");
+                var embed = await DiscordEmbedHelper.GetWarningAsync(e.Guild, "User not recognized", $"We're unable to detect who you are. Please go to {IvaoItBot.Config.DiscordAccessWizardHomepage}");
                 await e.Channel.SendMessageAsync(embed);
                 return;
             }

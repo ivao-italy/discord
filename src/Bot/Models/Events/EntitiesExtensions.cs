@@ -11,25 +11,19 @@ internal static class EntitiesExtensions
     /// <param name="evt"></param>
     /// <param name="guild"></param>
     /// <returns></returns>
-    public static async Task<DiscordEmbedBuilder> CreateEventAsync(this DiscordEmbedBuilder builder, Event evt, DiscordGuild guild)
+    public static async Task<DiscordEmbedBuilder> ToEmbedAsync(this Event evt, DiscordGuild guild)
     {
-        builder
-            .WithColor(DiscordEmbedHelper.Green)
-            .WithTitle(evt.Name)
-            .WithTimestamp(DateTime.Now)
-            .WithAuthor("IVAO Italia", @"https://www.ivao.it", guild.IconUrl ?? (await guild.GetMemberAsync(IvaoItBot.Config!.BotUserId)).AvatarUrl);
-
+        var builder = await DiscordEmbedHelper.GetSuccessAsync(guild, $"#{evt.Id} {evt.Name}");
+        
         var mentionAuthor = (await guild.GetMemberAsync(evt.CreatedByUserId)).Mention;
         evt.Tasks = evt.Tasks.OrderBy(t => evt.Date.AddDays(-t.TaskType.DaysBefore)).ToList();
 
-        var markdown = $"__**A new event has been inserted**{Environment.NewLine}{Environment.NewLine}";
-        markdown += $"**#{evt.Id} {evt.Name}**{Environment.NewLine}";
-        markdown += $"Starting at {evt.Date:yyyy MMMM dd} - Created by {mentionAuthor}{Environment.NewLine}";
+        var markdown = $"Starting at {evt.Date:yyyy MMMM dd} - Created by {mentionAuthor}{Environment.NewLine}";
         if (!string.IsNullOrEmpty(evt.Link))
         {
             markdown += $"{evt.Link}{Environment.NewLine}";
         }
-        markdown += $"{Environment.NewLine}Tasks to be completed:";
+        markdown += $"{Environment.NewLine}Tasks status:";
         builder.WithDescription(markdown);
 
         foreach (var task in evt.Tasks)
@@ -48,7 +42,7 @@ internal static class EntitiesExtensions
     /// <param name="task"></param>
     /// <param name="date"></param>
     /// <returns></returns>
-    public static async Task TaskToFieldAsync(this DiscordEmbedBuilder builder, DiscordGuild guild, EventTask task, DateTime date)
+    private static async Task TaskToFieldAsync(this DiscordEmbedBuilder builder, DiscordGuild guild, EventTask task, DateTime date)
     {
         if (task.CompletedAt is null)
         {

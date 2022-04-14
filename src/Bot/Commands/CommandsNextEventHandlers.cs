@@ -10,12 +10,12 @@ internal class CommandsNextEventHandlers
         sender.Client.Logger.LogError(e.Exception, "CommandsNext error");
 
 #if DEBUG
-        var message = await DiscordEmbedHelper.GetEmbedError(
+        var message = await DiscordEmbedHelper.GetErrorAsync(
             e.Context.Guild,
             "Ops!",
             $"There was an error...{Environment.NewLine}{e.Exception.Message}");
 #else
-        var message = await DiscordEmbedHelper.GetEmbedError(
+        var message = await DiscordEmbedHelper.GetErrorAsync(
             e.Context.Guild,
             "Ops!",
             $"There was an error...{Environment.NewLine}{e.Exception.Message}");
