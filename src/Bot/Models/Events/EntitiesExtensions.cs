@@ -19,15 +19,16 @@ internal static class EntitiesExtensions
             builder.WithDescription("A new event has been planned!");
             builder.WithColor(DiscordEmbedHelper.Green);
         }
-        
+
+
         var mentionAuthor = (await guild.GetMemberAsync(evt.CreatedByUserId)).Mention;
         evt.Tasks = evt.Tasks.OrderBy(t => evt.Date.AddDays(-t.TaskType.DaysBefore)).ToList();
         var daysBefore = (evt.Date - DateTime.UtcNow).Days;
 
-        var markdown = $"Starting in {daysBefore} days ({evt.Date:yyyy MMMM dd}){Environment.NewLine}Created by {mentionAuthor}";
+        var markdown = $"Starting in {daysBefore} days ({evt.Date:yyyy MMMM dd}){Environment.NewLine}Created by {mentionAuthor}{Environment.NewLine}";
         if (!string.IsNullOrEmpty(evt.Link))
         {
-            markdown += $"{evt.Link}{Environment.NewLine}";
+            builder.WithUrl(evt.Link);
         }
         markdown += $"{Environment.NewLine}Tasks status:";
         builder.WithDescription(markdown);
@@ -57,14 +58,17 @@ internal static class EntitiesExtensions
                 $":pushpin: {task.TaskType.Description}",
                 $"Due {date.AddDays(-task.TaskType.DaysBefore):yyyy MMMM dd}{Environment.NewLine}{targetGroup} plase, be advised!",
                 true);
+            return;
         }
-        else
+
+        if (task.TaskTypeId == (short)EventsTasks.Graphics)
         {
-            var mention = (await guild.GetMemberAsync(task.CompletedBy!.Value)).Mention;
-            builder.AddField(
-                $":white_check_mark: {task.TaskType.Description}",
-                $"Completed at {task.CompletedAt:yyyy MMMM dd} by {mention}",
-                true);
+            builder.WithImageUrl(task.Content);
         }
+        var mention = (await guild.GetMemberAsync(task.CompletedBy!.Value)).Mention;
+        builder.AddField(
+            $":white_check_mark: {task.TaskType.Description}",
+            $"Completed at {task.CompletedAt:yyyy MMMM dd} by {mention}",
+            true);
     }
 }

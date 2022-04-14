@@ -55,6 +55,12 @@ internal class EventsService
         toUpdate.CompletedBy = userId;
         toUpdate.CompletedAt = DateTime.UtcNow;
         toUpdate.Content = content;
+
+        if (task == EventsTasks.ForumTopic)
+        {
+            toUpdate.Event.Link = content;
+        }
+
         await _db.SaveChangesAsync();
     }
 

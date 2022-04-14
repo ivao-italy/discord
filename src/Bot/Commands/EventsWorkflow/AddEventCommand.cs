@@ -54,7 +54,7 @@ internal partial class EventsCommands
 
             //Success Message
             var evt = await _service.GetAsync(eventId);
-            var embed = await evt!.ToEmbedAsync(ctx.Guild);
+            var embed = await evt!.ToEmbedAsync(ctx.Guild, insertConfirmation: true);
             await ctx.RespondAsync(embed);
         }
         catch (Exception e)
