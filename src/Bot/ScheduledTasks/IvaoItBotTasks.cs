@@ -40,6 +40,7 @@ internal class IvaoItBotTasks
         await _scheduler.AddCheckEventsToStartJobAsync(_environment);
         await _scheduler.AddDeletePastEventsJobAsync(_environment);
         await _scheduler.AddCheckCancelledEventsJobAsync(_environment);
+        await _scheduler.AddEventsTasksReminderJobAsync(_environment);
     }
 
     /// <summary>

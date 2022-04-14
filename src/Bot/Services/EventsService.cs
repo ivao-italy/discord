@@ -39,13 +39,20 @@ internal class EventsService
         await _db.Events.AsNoTracking()
             .Include(p => p.Tasks)
             .ThenInclude(t => t.TaskType)
-            .SingleOrDefaultAsync(e=>e.Id == id);
+            .SingleOrDefaultAsync(e => e.Id == id);
 
     public async Task<ICollection<Event>> GetAsync() =>
         await _db.Events.AsNoTracking()
             .Include(p => p.Tasks)
             .ThenInclude(t => t.TaskType)
             .Where(e => e.Date >= DateTime.UtcNow)
+            .ToListAsync();
+
+    public async Task<ICollection<Event>> GetUpcomingWithToDosAsync() =>
+        await _db.Events.AsNoTracking()
+            .Include(e => e.Tasks)
+            .ThenInclude(e => e.TaskType)
+            .Where(e => e.Tasks.Any(t => !t.CompletedAt.HasValue))
             .ToListAsync();
 
     public async Task CompleteTaskAsync(EventsTasks task, int @event, ulong userId, string? content)
