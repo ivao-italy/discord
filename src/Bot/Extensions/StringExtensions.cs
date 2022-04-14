@@ -3,7 +3,7 @@
 internal static class StringExtensions
 {
     /// <summary>
-    /// E' una facility attestata in ACC?
+    /// Is an ACC ICAO code?
     /// </summary>
     /// <param name="facility"></param>
     /// <returns></returns>
@@ -14,16 +14,23 @@ internal static class StringExtensions
     }
 
     /// <summary>
-    /// E' un settore ACC?
+    /// Is a valid ACC sector?
     /// </summary>
     /// <param name="facility"></param>
     /// <returns></returns>
     internal static bool IsAccFacility(this string facility) => facility.EndsWith("_CTR");
 
     /// <summary>
-    /// E' un settore APP/DEP=
+    /// Is a valid APP/DEP ATC sector?
     /// </summary>
     /// <param name="facility"></param>
     /// <returns></returns>
     internal static bool IsAppFacility(this string facility) => facility.EndsWith("_APP");
+
+    /// <summary>
+    /// Is the string in a URI format?
+    /// </summary>
+    /// <param name="uri"></param>
+    /// <returns></returns>
+    internal static bool IsValidUri(this string uri) => Uri.TryCreate(uri, UriKind.RelativeOrAbsolute, out _);
 }

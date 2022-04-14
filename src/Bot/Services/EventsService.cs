@@ -47,4 +47,14 @@ internal class EventsService
             .ThenInclude(t => t.TaskType)
             .Where(e => e.Date >= DateTime.UtcNow)
             .ToListAsync();
+
+    public async Task CompleteTaskAsync(EventsTasks task, int @event, ulong userId, string? content)
+    {
+        var taskTypeId = (short)task;
+        var toUpdate = await _db.EventTasks.SingleAsync(t => t.EventId == @event && t.TaskTypeId == taskTypeId);
+        toUpdate.CompletedBy = userId;
+        toUpdate.CompletedAt = DateTime.UtcNow;
+        toUpdate.Content = content;
+        await _db.SaveChangesAsync();
+    }
 }
