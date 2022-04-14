@@ -57,4 +57,10 @@ internal class EventsService
         toUpdate.Content = content;
         await _db.SaveChangesAsync();
     }
+
+    public async Task DeleteEventAsync(int eventId)
+    {
+        _db.Events.Remove(new Event { Id = eventId });
+        await _db.SaveChangesAsync();
+    }
 }

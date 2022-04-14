@@ -21,12 +21,12 @@ internal partial class EventsCommands
         [Description("Forum link - the link of the FS topic. Optional.")] string? forumLink = null
         )
     {
-        //Data parsing
+        //Data parsing - removes duplicates using hashset
         var dt = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
         var tasksArray = tasks
             .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Select(s => s.ToEventsTasks())
-            .ToList();
+            .ToHashSet();
 
         //Tasks always present
         tasksArray.Add(EventsTasks.Announcement);
