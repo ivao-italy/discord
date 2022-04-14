@@ -11,14 +11,20 @@ internal static class EntitiesExtensions
     /// <param name="evt"></param>
     /// <param name="guild"></param>
     /// <returns></returns>
-    public static async Task<DiscordEmbedBuilder> ToEmbedAsync(this Event evt, DiscordGuild guild)
+    public static async Task<DiscordEmbedBuilder> ToEmbedAsync(this Event evt, DiscordGuild guild, bool insertConfirmation = false)
     {
-        var builder = await DiscordEmbedHelper.GetSuccessAsync(guild, $"#{evt.Id} {evt.Name}");
+        var builder = await DiscordEmbedHelper.GetAsync(guild, $"#{evt.Id} {evt.Name}");
+        if (insertConfirmation)
+        {
+            builder.WithDescription("A new event has been planned!");
+            builder.WithColor(DiscordEmbedHelper.Green);
+        }
         
         var mentionAuthor = (await guild.GetMemberAsync(evt.CreatedByUserId)).Mention;
         evt.Tasks = evt.Tasks.OrderBy(t => evt.Date.AddDays(-t.TaskType.DaysBefore)).ToList();
+        var daysBefore = (evt.Date - DateTime.UtcNow).Days;
 
-        var markdown = $"Starting at {evt.Date:yyyy MMMM dd} - Created by {mentionAuthor}{Environment.NewLine}";
+        var markdown = $"Starting in {daysBefore} days ({evt.Date:yyyy MMMM dd}){Environment.NewLine}Created by {mentionAuthor}";
         if (!string.IsNullOrEmpty(evt.Link))
         {
             markdown += $"{evt.Link}{Environment.NewLine}";
@@ -46,9 +52,10 @@ internal static class EntitiesExtensions
     {
         if (task.CompletedAt is null)
         {
+            var targetGroup = guild.GetRole(task.TaskType.StaffGroupToNofify).Mention;
             builder.AddField(
                 $":pushpin: {task.TaskType.Description}",
-                $"Due {date.AddDays(-task.TaskType.DaysBefore):yyyy MMMM dd}",
+                $"Due {date.AddDays(-task.TaskType.DaysBefore):yyyy MMMM dd}{Environment.NewLine}{targetGroup} plase, be advised!",
                 true);
         }
         else
