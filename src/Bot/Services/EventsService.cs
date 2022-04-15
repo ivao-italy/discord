@@ -71,6 +71,9 @@ internal class EventsService
         await _db.SaveChangesAsync();
     }
 
+    public async Task<bool> IsTaskCompleted(EventsTasks task, int @event) 
+        => _db.EventTasks.AsNoTracking().Any(t => t.TaskTypeId == (short)task && t.CompletedBy == null);
+
     public async Task DeleteEventAsync(int eventId)
     {
         _db.Events.Remove(new Event { Id = eventId });

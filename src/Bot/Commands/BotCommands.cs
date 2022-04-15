@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Ivao.It.DiscordBot.Commands;
 
-internal class BotCommands : BaseCommandModule
+internal class RuleCommand : BaseCommandModule
 {
     [Command("rule")]
     [Description("Generates a Rules post in the designed channel (by bot config).")]

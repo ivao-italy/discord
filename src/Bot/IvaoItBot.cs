@@ -3,6 +3,8 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Extensions;
 using Ivao.It.DiscordBot.Commands;
 using Ivao.It.DiscordBot.DiscordEventsHandlers;
 using Ivao.It.DiscordBot.ScheduledTasks;
@@ -36,6 +38,7 @@ public class IvaoItBot
     /// <param name="loggerFactory"></param>
     /// <param name="config"></param>
     /// <param name="serviceScopeFactory"></param>
+    /// <param name="environment"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public IvaoItBot(
         ILoggerFactory loggerFactory,
@@ -64,16 +67,21 @@ public class IvaoItBot
             Token = Config!.DiscordToken,
             TokenType = TokenType.Bot,
             LoggerFactory = _loggerFactory,
-            Intents = DiscordIntents.Guilds | DiscordIntents.GuildMessages | DiscordIntents.GuildMembers | DiscordIntents.ScheduledGuildEvents,
-            AutoReconnect = true,
+            Intents = DiscordIntents.Guilds | DiscordIntents.GuildMessages | DiscordIntents.GuildMembers | DiscordIntents.ScheduledGuildEvents | DiscordIntents.GuildMessageReactions,
+            AutoReconnect = true
         });
 
         Client.Logger.LogInformation("Initializing IVAO IT Bot version {version}", Assembly.GetExecutingAssembly().GetName().Version?.ToString());
 
         using var scope = this.ServiceScopeFactory.CreateScope();
-
+        
         //Commands
         Client.UseIvaoCommands(this.ServiceScopeFactory);
+
+        //Interactivity
+        Client.UseInteractivity(new InteractivityConfiguration {
+            Timeout = TimeSpan.FromMinutes(2),
+        });
 
         //Handlers
         Client.Ready += this.Client_Ready;

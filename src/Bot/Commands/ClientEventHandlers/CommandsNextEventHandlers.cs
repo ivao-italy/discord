@@ -1,7 +1,7 @@
 ﻿using DSharpPlus.CommandsNext;
 using Microsoft.Extensions.Logging;
 
-namespace Ivao.It.DiscordBot.Commands;
+namespace Ivao.It.DiscordBot.Commands.ClientEventHandlers;
 
 internal class CommandsNextEventHandlers
 {

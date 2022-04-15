@@ -1,6 +1,5 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.Entities;
 using Ivao.It.DiscordBot.Models.Events;
 
 namespace Ivao.It.DiscordBot.Commands.EventsWorkflow;
@@ -15,9 +14,22 @@ internal partial class EventsCommands
     {
         var events = await this._service.GetAsync();
 
-        var tasks = events.Select(async e => (DiscordEmbed)(await e.ToEmbedAsync(ctx.Guild)));
-        var messageBuilder = new DiscordMessageBuilder();
-        messageBuilder.AddEmbeds((await Task.WhenAll(tasks)).ToList());
-        await ctx.RespondAsync(messageBuilder);
+        foreach (var @event in events)
+        {
+            var embed = await @event.ToEmbedAsync(ctx.Guild);
+            var message = await ctx.RespondAsync(embed);
+            var reactionsTasks = @event.Tasks.
+                Where(t => !t.CompletedBy.HasValue)
+                .Select(t => (EventsTasks)t.TaskTypeId)
+                .Select(async t =>
+                {
+                    await message.CreateReactionAsync(t.ToEmoji(ctx.Client));
+                });
+
+            await Task.WhenAll(reactionsTasks);
+        }
+        //var tasks = events.Select(async e => (DiscordEmbed)(await e.ToEmbedAsync(ctx.Guild)));
+        //var messageBuilder = new DiscordMessageBuilder();
+        //messageBuilder.AddEmbeds((await Task.WhenAll(tasks)).ToList());
     }
 }

@@ -13,7 +13,7 @@ internal static class EntitiesExtensions
     /// <returns></returns>
     public static async Task<DiscordEmbedBuilder> ToEmbedAsync(this Event evt, DiscordGuild guild, bool insertConfirmation = false)
     {
-        var builder = await DiscordEmbedHelper.GetAsync(guild, $"#{evt.Id} {evt.Name}");
+        var builder = await DiscordEmbedHelper.GetAsync(guild, $"Event Code:{evt.Id} - {evt.Name}");
         if (insertConfirmation)
         {
             builder.WithDescription("A new event has been planned!");
@@ -37,7 +37,7 @@ internal static class EntitiesExtensions
         {
             await builder.TaskToFieldAsync(guild, task, evt.Date);
         }
-
+        
         return builder;
     }
 
@@ -54,9 +54,10 @@ internal static class EntitiesExtensions
         if (task.CompletedAt is null)
         {
             var targetGroup = guild.GetRole(task.TaskType.StaffGroupToNofify).Mention;
+            var emoji = ((EventsTasks)task.TaskTypeId).ToEmojiName();
             builder.AddField(
                 $":pushpin: {task.TaskType.Description}",
-                $"Due {date.AddDays(-task.TaskType.DaysBefore):yyyy MMMM dd}{Environment.NewLine}{targetGroup} plase, be advised!",
+                $"Due {date.AddDays(-task.TaskType.DaysBefore):yyyy MMMM dd}{Environment.NewLine}{targetGroup}!{Environment.NewLine}react with {emoji} to complete!",
                 true);
             return;
         }
