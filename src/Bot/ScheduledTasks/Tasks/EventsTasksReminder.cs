@@ -35,7 +35,8 @@ internal class EventsTasksReminder : IJob
                 .WithContent($"Hey {string.Join(", ", mentions)}! :warning: IT-ED is waiting for you!")
                 .WithEmbed(await @event.ToEmbedAsync(guild));
             
-            await guild.GetChannel(IvaoItBot.Config!.EventsStaffChannelId).SendMessageAsync(mb);
+            var message = await guild.GetChannel(IvaoItBot.Config!.EventsStaffChannelId).SendMessageAsync(mb);
+            await message.AppendTasksReactions(bot.Client, @event.Tasks);
         }
     }
 }

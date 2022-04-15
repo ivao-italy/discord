@@ -3,11 +3,11 @@ using DSharpPlus.CommandsNext.Attributes;
 using Microsoft.Extensions.Logging;
 
 namespace Ivao.It.DiscordBot.Commands;
-internal class CheckCallChannelAttribute : CheckBaseAttribute
+internal abstract class BaseCheckBotChannelAttribute : CheckBaseAttribute
 {
-    public override async Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
+   protected async Task<bool> CheckIfInChannelAsync(CommandContext ctx, ulong channelId)
     {
-        if (ctx.Message.ChannelId != IvaoItBot.Config!.BotControlChannelId)
+        if (ctx.Message.ChannelId != channelId)
         {
             ctx.Client.Logger.LogWarning("'{commandName}' command invoked from wrong channel ({channel})", ctx.Command!.Name, ctx.Channel.Name);
             return false;

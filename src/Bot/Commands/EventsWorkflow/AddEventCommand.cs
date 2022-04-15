@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using Ivao.It.DiscordBot.Commands.EventsWorkflow.Attributes;
 using Ivao.It.DiscordBot.Models.Events;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
@@ -11,8 +12,7 @@ internal partial class EventsCommands
     [Command("add")]
     [Description("Schedules a new Event to build the appropriate checklist for all the staff members involved")]
     [RequirePermissions(DSharpPlus.Permissions.ManageChannels)]
-    [CheckCallChannel]
-
+    [InEventsChannelOnly]
     public async Task Add(
         CommandContext ctx,
         [Description("Title of the event - Markdown formatting allowed")] string title,
@@ -54,8 +54,7 @@ internal partial class EventsCommands
 
             //Success Message
             var evt = await _service.GetAsync(eventId);
-            var embed = await evt!.ToEmbedAsync(ctx.Guild, insertConfirmation: true);
-            await ctx.RespondAsync(embed);
+            await evt!.ReplyWithEvent(ctx.Client, ctx.Guild, ctx.Message, true);
         }
         catch (Exception e)
         {

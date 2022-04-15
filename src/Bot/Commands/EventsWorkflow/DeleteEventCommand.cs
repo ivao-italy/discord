@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using Ivao.It.DiscordBot.Commands.EventsWorkflow.Attributes;
 using Microsoft.Extensions.Logging;
 
 namespace Ivao.It.DiscordBot.Commands.EventsWorkflow;
@@ -8,7 +9,7 @@ internal partial class EventsCommands
     [Command("delete")]
     [Description("Deletes the event")]
     [RequirePermissions(DSharpPlus.Permissions.ManageChannels)]
-    [CheckCallChannel]
+    [InEventsChannelOnly]
     public async Task Delete(
         CommandContext ctx,
         [Description("Event code (the number before # in the event post)")] int eventId
@@ -16,7 +17,6 @@ internal partial class EventsCommands
     {
         try
         {
-
             await this._service.DeleteEventAsync(eventId);
             await ctx.RespondAsync(await DiscordEmbedHelper.GetSuccessAsync(
                 ctx.Guild,
@@ -29,7 +29,7 @@ internal partial class EventsCommands
                 ctx.Guild,
                 "Ops!",
                 $"Something went wrong deleting the Event...{Environment.NewLine}{e.Message}"));
-            ctx.Client.Logger.LogError(e, "Event delete error: {event} - {taskType} - {user}",
+            ctx.Client.Logger.LogError(e, "Event delete error: {event} - {user}",
                 eventId,
                 ctx.Member?.Nickname ?? ctx.User.Username);
         }

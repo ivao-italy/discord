@@ -9,7 +9,7 @@ internal class RuleCommand : BaseCommandModule
     [Command("rule")]
     [Description("Generates a Rules post in the designed channel (by bot config).")]
     [RequirePermissions(DSharpPlus.Permissions.ManageChannels)]
-    [CheckCallChannel]
+    [InBotControlChannel]
     public async Task Rule(
         CommandContext ctx,
         [Description("Title of the rule - Markdown formatting allowed")] string title,

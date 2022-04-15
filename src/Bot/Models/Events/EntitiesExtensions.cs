@@ -1,9 +1,36 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using Ivao.It.DiscordBot.Data.Entities;
 
 namespace Ivao.It.DiscordBot.Models.Events;
 internal static class EntitiesExtensions
 {
+    public static async Task<DiscordMessage> SendEvent(
+        this Event evt,
+        DiscordClient client,
+        DiscordGuild guild,
+        DiscordChannel channel,
+        bool insertConfirmation = false)
+    {
+        var embed = await evt!.ToEmbedAsync(guild, insertConfirmation: true);
+        var message = await channel.SendMessageAsync(embed);
+        await message.AppendTasksReactions(client, evt.Tasks);
+        return message;
+    }
+
+    public static async Task<DiscordMessage> ReplyWithEvent(
+        this Event evt,
+        DiscordClient client,
+        DiscordGuild guild,
+        DiscordMessage replyTo,
+        bool insertConfirmation = false)
+    {
+        var embed = await evt!.ToEmbedAsync(guild, insertConfirmation: true);
+        var message = await replyTo.RespondAsync(embed);
+        await message.AppendTasksReactions(client, evt.Tasks);
+        return message;
+    }
+
     /// <summary>
     /// Adds an event to the EmbedBuilder
     /// </summary>
@@ -37,9 +64,30 @@ internal static class EntitiesExtensions
         {
             await builder.TaskToFieldAsync(guild, task, evt.Date);
         }
-        
+
         return builder;
     }
+
+
+    /// <summary>
+    /// Appends the reactions for the tasks to be done (to help users to react correctly)
+    /// </summary>
+    /// <param name="message"></param>
+    /// <param name="client"></param>
+    /// <param name="tasks"></param>
+    /// <returns></returns>
+    internal static async Task AppendTasksReactions(this DiscordMessage message, DiscordClient client, IEnumerable<EventTask> tasks)
+    {
+        var reactions = tasks.Where(t => !t.CompletedBy.HasValue)
+            .Select(t => (EventsTasks)t.TaskTypeId)
+            .Select(async t =>
+            {
+                await message.CreateReactionAsync(t.ToEmoji(client));
+            });
+
+        await Task.WhenAll(reactions);
+    }
+
 
     /// <summary>
     /// Adds event tasks to the builder as fields
@@ -72,4 +120,5 @@ internal static class EntitiesExtensions
             $"Completed at {task.CompletedAt:yyyy MMMM dd} by {mention}",
             true);
     }
+
 }
