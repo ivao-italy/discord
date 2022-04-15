@@ -117,7 +117,7 @@ internal static class EntitiesExtensions
         var mention = (await guild.GetMemberAsync(task.CompletedBy!.Value)).Mention;
         builder.AddField(
             $":white_check_mark: {task.TaskType.Description}",
-            $"Completed at {task.CompletedAt:yyyy MMMM dd} by {mention}",
+            $"{task.CompletedAt:yyyy MMMM dd} by {mention}",
             true);
     }
 
