@@ -76,7 +76,7 @@ internal static class EntitiesExtensions
     /// <param name="client"></param>
     /// <param name="tasks"></param>
     /// <returns></returns>
-    internal static async Task AppendTasksReactions(this DiscordMessage message, DiscordClient client, IEnumerable<EventTask> tasks)
+    public static async Task AppendTasksReactions(this DiscordMessage message, DiscordClient client, IEnumerable<EventTask> tasks)
     {
         var reactions = tasks.Where(t => !t.CompletedBy.HasValue)
             .Select(t => (EventsTasks)t.TaskTypeId)
