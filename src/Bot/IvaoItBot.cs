@@ -129,7 +129,8 @@ public class IvaoItBot
     {
         sender.Logger.LogWarning("Bot started. Ready!");
 #if DEBUG
-        await sender.UpdateStatusAsync(new DiscordActivity($"IVAO Italy DEV {sender.VersionString}", ActivityType.Watching), UserStatus.Online);
+        var botVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3);
+        await sender.UpdateStatusAsync(new DiscordActivity($"IVAO Italy DEV {botVersion}({sender.VersionString})", ActivityType.Watching), UserStatus.Online);
 #else
         await sender.UpdateStatusAsync(new DiscordActivity("IVAO Italy", ActivityType.Watching), UserStatus.Online);
 #endif
