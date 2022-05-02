@@ -52,6 +52,7 @@ internal class EventsService
         await _db.Events.AsNoTracking()
             .Include(e => e.Tasks)
             .ThenInclude(e => e.TaskType)
+            .Where(e => e.Date >= DateTime.UtcNow)
             .Where(e => e.Tasks.Any(t => !t.CompletedAt.HasValue))
             .ToListAsync();
 
