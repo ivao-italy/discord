@@ -15,6 +15,15 @@ internal partial class EventsCommands
     {
         var events = await this._service.GetAsync();
 
+        if (events.Count == 0)
+        {
+            await ctx.RespondAsync(await DiscordEmbedHelper.GetWarningAsync(
+                ctx.Guild, 
+                "Sorry mate...",
+                "We've no upcoming event to show..."));
+            return;
+        }
+
         foreach (var @event in events)
             await @event.ReplyWithEvent(ctx.Client, ctx.Guild, ctx.Message);
     }
