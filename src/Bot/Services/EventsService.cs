@@ -76,7 +76,9 @@ internal class EventsService
 
     public async Task DeleteEventAsync(int eventId)
     {
-        _db.Events.Remove(new Event { Id = eventId });
+        var ev = new Event { Id = eventId };
+        _db.Events.Attach(ev);
+        _db.Events.Remove(ev);
         await _db.SaveChangesAsync();
     }
 }
