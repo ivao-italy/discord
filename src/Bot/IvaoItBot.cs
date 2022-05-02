@@ -3,6 +3,9 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Extensions;
+using Ivao.It.DiscordBot.Commands;
 using Ivao.It.DiscordBot.DiscordEventsHandlers;
 using Ivao.It.DiscordBot.ScheduledTasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +38,7 @@ public class IvaoItBot
     /// <param name="loggerFactory"></param>
     /// <param name="config"></param>
     /// <param name="serviceScopeFactory"></param>
+    /// <param name="environment"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public IvaoItBot(
         ILoggerFactory loggerFactory,
@@ -63,24 +67,21 @@ public class IvaoItBot
             Token = Config!.DiscordToken,
             TokenType = TokenType.Bot,
             LoggerFactory = _loggerFactory,
-            Intents = DiscordIntents.Guilds | DiscordIntents.GuildMembers | DiscordIntents.GuildMessages | DiscordIntents.GuildMembers | DiscordIntents.ScheduledGuildEvents,
-            AutoReconnect = true,
+            Intents = DiscordIntents.Guilds | DiscordIntents.GuildMessages | DiscordIntents.GuildMembers | DiscordIntents.ScheduledGuildEvents | DiscordIntents.GuildMessageReactions,
+            AutoReconnect = true
         });
 
         Client.Logger.LogInformation("Initializing IVAO IT Bot version {version}", Assembly.GetExecutingAssembly().GetName().Version?.ToString());
 
         using var scope = this.ServiceScopeFactory.CreateScope();
-        var commandsNextHandlers = scope.ServiceProvider.GetRequiredService<CommandsNextEventHandlers>();
-
+        
         //Commands
-        this.Commands = Client.UseCommandsNext(new CommandsNextConfiguration
-        {
-            //StringPrefixes = new[] { "/" },
-            EnableMentionPrefix = true,
+        Client.UseIvaoCommands(this.ServiceScopeFactory);
+
+        //Interactivity
+        Client.UseInteractivity(new InteractivityConfiguration {
+            Timeout = TimeSpan.FromMinutes(2),
         });
-        this.Commands.RegisterCommands<BotCommands>();
-        this.Commands.CommandExecuted += commandsNextHandlers.Commands_CommandExecuted;
-        this.Commands.CommandErrored += commandsNextHandlers.Commands_CommandErrored;
 
         //Handlers
         Client.Ready += this.Client_Ready;
@@ -128,7 +129,8 @@ public class IvaoItBot
     {
         sender.Logger.LogWarning("Bot started. Ready!");
 #if DEBUG
-        await sender.UpdateStatusAsync(new DiscordActivity($"IVAO Italy DEV {sender.VersionString}", ActivityType.Watching), UserStatus.Online);
+        var botVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3);
+        await sender.UpdateStatusAsync(new DiscordActivity($"IVAO Italy DEV {botVersion}({sender.VersionString})", ActivityType.Watching), UserStatus.Online);
 #else
         await sender.UpdateStatusAsync(new DiscordActivity("IVAO Italy", ActivityType.Watching), UserStatus.Online);
 #endif

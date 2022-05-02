@@ -18,7 +18,7 @@ internal static class UserVerificationManager
         {
             client.Logger.LogError($"Configuration invalid: the Verified Users Role ID configured was not found on the server");
             await verificationChannel.SendMessageAsync(
-                await DiscordEmbedHelper.GetEmbedError(
+                await DiscordEmbedHelper.GetErrorAsync(
                     guild,
                     "Hey! Ho un problema!",
                     "Non riesco a validare la tua registrazione. Puoi chiedere perchè a it-hq@ivao.aero."
@@ -39,7 +39,7 @@ internal static class UserVerificationManager
         {
             client.Logger.LogError(ex, "Discord API Error trying to update user's nickname. Nickname: {nickname}", user.ToString());
             await verificationChannel.SendMessageAsync(
-                await DiscordEmbedHelper.GetEmbedError(
+                await DiscordEmbedHelper.GetErrorAsync(
                     guild,
                     "Hey! Ho un problema!",
                     "Non riesco ad impostare il tuo nickname! Puoi chiedere perchè a it-hq@ivao.aero"
@@ -60,7 +60,7 @@ internal static class UserVerificationManager
         {
             client.Logger.LogError(ex, "Discord API Error trying to grant approved role to user. Nickname: {nickname}", user.ToString());
             await verificationChannel.SendMessageAsync(
-                await DiscordEmbedHelper.GetEmbedError(
+                await DiscordEmbedHelper.GetErrorAsync(
                     guild,
                     "Hey! Ho un problema!",
                     "Non riesco ad assegnarti il ruolo 'Utente verificato'! Puoi chiedere perchè a it-hq@ivao.aero"
@@ -69,7 +69,7 @@ internal static class UserVerificationManager
             return false;
         }
 
-        await member.SendMessageAsync(await DiscordEmbedHelper.GetEmbedSuccess(
+        await member.SendMessageAsync(await DiscordEmbedHelper.GetErrorAsync(
                     guild,
                     $"Welcome aboard, Captain {user.FirstName}",
                     $"Mi raccomando, torna a leggere le [regole del server](https://discord.com/channels/{guild.Id}/{IvaoItBot.Config.WelcomeChannelId}). Sono importanti!"

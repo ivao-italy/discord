@@ -98,6 +98,27 @@ internal static class JobSchedulerExtensions
         await scheduler.ScheduleJob(init.job, init.builder.Build());
     }
 
+    internal static async Task AddEventsTasksReminderJobAsync(this IScheduler scheduler, IHostEnvironment environment)
+    {
+        var init = CreateJobAndTriggerBuilder<EventsTasksReminder>();
+
+        if (environment.IsDevelopment())
+        {
+            init.builder.WithSimpleSchedule(s => s.WithIntervalInSeconds(5));
+        }
+        else
+        {
+            init.builder.WithDailyTimeIntervalSchedule(opt =>
+                opt.InTimeZone(TimeZoneInfo.Utc)
+                    .WithIntervalInHours(24)
+                    .OnEveryDay()
+                    .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(16, 0))
+            );
+        }
+
+        await scheduler.ScheduleJob(init.job, init.builder.Build());
+    }
+
     private static (IJobDetail job, TriggerBuilder builder) CreateJobAndTriggerBuilder<T>() where T : IJob
     {
         IJobDetail job = JobBuilder.Create<T>()

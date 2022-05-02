@@ -3,6 +3,7 @@ using System;
 using Ivao.It.DiscordBot.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,13 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Ivao.It.DiscordBot.Data.Migrations
 {
     [DbContext(typeof(DiscordDbContext))]
-    partial class DiscordDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220412150613_Events-Scaffolding")]
+    partial class EventsScaffolding
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.4")
+                .HasAnnotation("ProductVersion", "6.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("Ivao.It.DiscordBot.Data.Entities.Event", b =>
@@ -74,10 +76,9 @@ namespace Ivao.It.DiscordBot.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TaskTypeId");
+                    b.HasIndex("EventId");
 
-                    b.HasIndex("EventId", "TaskTypeId")
-                        .IsUnique();
+                    b.HasIndex("TaskTypeId");
 
                     b.ToTable("EventTasks");
                 });
@@ -145,13 +146,6 @@ namespace Ivao.It.DiscordBot.Data.Migrations
                             Id = (short)6,
                             DaysBefore = (short)10,
                             Description = "Announcement Social",
-                            StaffGroupToNofify = 541216766924423169ul
-                        },
-                        new
-                        {
-                            Id = (short)7,
-                            DaysBefore = (short)2,
-                            Description = "ATC Bookings",
                             StaffGroupToNofify = 541216766924423169ul
                         });
                 });

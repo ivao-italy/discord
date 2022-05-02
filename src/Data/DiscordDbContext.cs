@@ -10,6 +10,11 @@ public class DiscordDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Exam> Exams { get; set; }
     public DbSet<Training> Trainings { get; set; }
+    public DbSet<Event> Events { get; set; }
+    public DbSet<EventTask> EventTasks { get; set; }
+    public DbSet<EventTaskType> EventTaskTypes { get; set; }
+
+
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     public DiscordDbContext(DbContextOptions<DiscordDbContext> options)

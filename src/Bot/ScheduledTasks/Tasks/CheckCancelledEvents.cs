@@ -68,7 +68,7 @@ internal class CheckCancelledEvents : IJob
                 var builder = new DiscordMessageBuilder();
                 foreach (var toBeCancelled in cancellationsToBeAnnounced)
                 {
-                    builder.AddEmbed(await DiscordEmbedHelper.GetEmbedWarning(
+                    builder.AddEmbed(await DiscordEmbedHelper.GetWarningAsync(
                         guild,
                         $"{toBeCancelled.Value} rimandato!",
                         $"Attenzione! L'evento previsto oggi a **{toBeCancelled.Key}** non avrà luogo! Ci scusiamo per il disagio!"));
