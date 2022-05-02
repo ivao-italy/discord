@@ -8,7 +8,7 @@ internal partial class EventsCommands
 {
     [Command("delete")]
     [Description("Deletes the event")]
-    [RequirePermissions(DSharpPlus.Permissions.ManageChannels)]
+    //[RequirePermissions(DSharpPlus.Permissions.ManageChannels)]
     [InEventsChannelOnly]
     public async Task Delete(
         CommandContext ctx,

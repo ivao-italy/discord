@@ -11,7 +11,7 @@ internal partial class EventsCommands
 {
     [Command("add")]
     [Description("Schedules a new Event to build the appropriate checklist for all the staff members involved")]
-    [RequirePermissions(DSharpPlus.Permissions.ManageChannels)]
+    //[RequirePermissions(DSharpPlus.Permissions.ManageChannels)]
     [InEventsChannelOnly]
     public async Task Add(
         CommandContext ctx,

@@ -9,7 +9,7 @@ internal partial class EventsCommands
 {
     [Command("planned")]
     [Description("Shows the upcoming events scheduled and their tasks status.")]
-    [RequirePermissions(DSharpPlus.Permissions.ManageChannels)]
+    //[RequirePermissions(DSharpPlus.Permissions.ManageChannels)]
     [InEventsChannelOnly]
     public async Task Planned(CommandContext ctx)
     {
