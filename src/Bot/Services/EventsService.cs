@@ -60,6 +60,10 @@ internal class EventsService
     {
         var taskTypeId = (short)task;
         var toUpdate = await _db.EventTasks.SingleAsync(t => t.EventId == @event && t.TaskTypeId == taskTypeId);
+        if (toUpdate.CompletedAt.HasValue)
+        {
+            throw new IvaoItBotBusinessException("Sorry! That task has already been completed.");
+        }
         toUpdate.CompletedBy = userId;
         toUpdate.CompletedAt = DateTime.UtcNow;
         toUpdate.Content = content;
