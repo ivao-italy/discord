@@ -24,7 +24,7 @@ internal class EventsTasksReminder : IJob
         var scopeSp = bot.ServiceScopeFactory.CreateScope().ServiceProvider;
         var service = scopeSp.GetRequiredService<EventsService>();
 
-        var eventsToRemind = await service.GetUpcomingWithToDosAsync();
+        var eventsToRemind = await service.GetUpcomingWithToDosExpiredAsync();
         
         foreach (var @event in eventsToRemind)
         {
