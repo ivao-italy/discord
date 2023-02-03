@@ -37,10 +37,10 @@ internal class IvaoItBotTasks
         _scheduler.Context.Add("Bot", _bot);
 
         //Adding the Jobs schedules
-        await _scheduler.AddCheckEventsToStartJobAsync(_environment);
-        await _scheduler.AddDeletePastEventsJobAsync(_environment);
-        await _scheduler.AddCheckCancelledEventsJobAsync(_environment);
-        await _scheduler.AddEventsTasksReminderJobAsync(_environment);
+        //await _scheduler.AddCheckEventsToStartJobAsync(_environment);
+        await _scheduler.AddDeleteOlderPostsJobAsync(_environment);
+        //await _scheduler.AddCheckCancelledEventsJobAsync(_environment);
+        //await _scheduler.AddEventsTasksReminderJobAsync(_environment);
     }
 
     /// <summary>

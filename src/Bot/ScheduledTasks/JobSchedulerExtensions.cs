@@ -6,22 +6,21 @@ namespace Ivao.It.DiscordBot.ScheduledTasks;
 
 internal static class JobSchedulerExtensions
 {
-
     /// <summary>
-    /// Adds to the scheduler the <see cref="DeletePastEventsPost"/> Job
+    /// Adds to the scheduler the <see cref="DeleteOlderPosts"/> Job
     /// <para>Prod: every 24hrs at 00:00UTC</para>
     /// <para>Debug: every 30s</para>
     /// </summary>
     /// <param name="scheduler"></param>
     /// <param name="environment"></param>
     /// <returns></returns>
-    internal static async Task AddDeletePastEventsJobAsync(this IScheduler scheduler, IHostEnvironment environment)
+    internal static async Task AddDeleteOlderPostsJobAsync(this IScheduler scheduler, IHostEnvironment environment)
     {
-        var init = CreateJobAndTriggerBuilder<DeletePastEventsPost>();
+        var init = CreateJobAndTriggerBuilder<DeleteOlderPosts>();
 
         if (environment.IsDevelopment())
         {
-            init.builder.WithSimpleSchedule(s => s.WithIntervalInSeconds(5));
+            init.builder.WithSimpleSchedule(s => s.WithIntervalInSeconds(30));
         }
         else
         {
@@ -35,6 +34,37 @@ internal static class JobSchedulerExtensions
 
         await scheduler.ScheduleJob(init.job, init.builder.Build());
     }
+
+
+    ///// <summary>
+    ///// Adds to the scheduler the <see cref="DeletePastEventsPost"/> Job
+    ///// <para>Prod: every 24hrs at 00:00UTC</para>
+    ///// <para>Debug: every 30s</para>
+    ///// </summary>
+    ///// <param name="scheduler"></param>
+    ///// <param name="environment"></param>
+    ///// <returns></returns>
+    //[Obsolete]
+    //internal static async Task AddDeletePastEventsJobAsync(this IScheduler scheduler, IHostEnvironment environment)
+    //{
+    //    var init = CreateJobAndTriggerBuilder<DeletePastEventsPost>();
+
+    //    if (environment.IsDevelopment())
+    //    {
+    //        init.builder.WithSimpleSchedule(s => s.WithIntervalInSeconds(5));
+    //    }
+    //    else
+    //    {
+    //        init.builder.WithDailyTimeIntervalSchedule(opt =>
+    //            opt.InTimeZone(TimeZoneInfo.Utc)
+    //                .WithIntervalInHours(24)
+    //                .OnEveryDay()
+    //                .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(0, 0))
+    //        );
+    //    }
+
+    //    await scheduler.ScheduleJob(init.job, init.builder.Build());
+    //}
 
     /// <summary>
     /// Adds to the scheduler the <see cref="CheckEventsToStart"/> Job
