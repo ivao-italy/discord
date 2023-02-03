@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using Ivao.It.DiscordBot.Commands.EventsWorkflow.Attributes;
+using Ivao.It.DiscordBot.Data.Entities;
 using Ivao.It.DiscordBot.Models.Events;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
@@ -16,7 +17,7 @@ internal partial class EventsCommands
     public async Task Add(
         CommandContext ctx,
         [Description("Title of the event - Markdown formatting allowed")] string title,
-        [Description("Date of the event start - In ICAO FPL DOF format: yyyymmdd")] string date,
+        [Description("Date of the event start - In format: yyyymmdd")] string date,
         [Description("Tasks needed: rfe, banner, routes. Add all the needed taks in a comma separated value string. Eg: 'rfe,banner'")] string tasks,
         [Description("Forum link - the link of the FS topic. Optional.")] string? forumLink = null
         )
@@ -32,6 +33,9 @@ internal partial class EventsCommands
         tasksArray.Add(EventsTasks.Announcement);
         tasksArray.Add(EventsTasks.AnnouncementSocial);
         tasksArray.Add(EventsTasks.Atcs);
+
+        //var taskTypes = await this._service.GetAllTaskTypes();
+        //taskTypes = taskTypes.Where(t => tasksArray.Contains((EventsTasks)t.Id)).ToList();
 
         //Validations
         //Can be parametrized to the first deadline?
