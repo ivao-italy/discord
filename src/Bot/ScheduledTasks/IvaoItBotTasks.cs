@@ -38,10 +38,10 @@ internal class IvaoItBotTasks
 
         //Adding the Jobs schedules
 #if DEBUG
-        //await _scheduler.AddCheckEventsToStartJobAsync(_environment);
+        await _scheduler.AddCheckEventsToStartJobAsync(_environment);
         await _scheduler.AddDeleteOlderPostsJobAsync(_environment);
-        //await _scheduler.AddCheckCancelledEventsJobAsync(_environment);
-        //await _scheduler.AddEventsTasksReminderJobAsync(_environment);
+        await _scheduler.AddCheckCancelledEventsJobAsync(_environment);
+        await _scheduler.AddEventsTasksReminderJobAsync(_environment);
 #else
         await _scheduler.AddCheckEventsToStartJobAsync(_environment);
         await _scheduler.AddDeleteOlderPostsJobAsync(_environment);
