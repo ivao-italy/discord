@@ -67,7 +67,12 @@ public class IvaoItBot
             Token = Config!.DiscordToken,
             TokenType = TokenType.Bot,
             LoggerFactory = _loggerFactory,
-            Intents = DiscordIntents.Guilds | DiscordIntents.GuildMessages | DiscordIntents.GuildMembers | DiscordIntents.ScheduledGuildEvents | DiscordIntents.GuildMessageReactions,
+            Intents = DiscordIntents.Guilds | 
+                        DiscordIntents.MessageContents | 
+                        DiscordIntents.GuildMessages | 
+                        DiscordIntents.GuildMembers | 
+                        DiscordIntents.ScheduledGuildEvents | 
+                        DiscordIntents.GuildMessageReactions,
             AutoReconnect = true
         });
 

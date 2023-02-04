@@ -1,6 +1,5 @@
-﻿using Ivao.It.Discord.Shared.Services;
-using Ivao.It.DiscordBot.Commands;
-using Ivao.It.DiscordBot.Commands.EventsWorkflow;
+﻿using FluentValidation;
+using Ivao.It.Discord.Shared.Services;
 using Ivao.It.DiscordBot.Commands.EventsWorkflow.ClientEventHandlers;
 using Ivao.It.DiscordBot.DiscordEventsHandlers;
 using Ivao.It.DiscordBot.Services;
@@ -17,6 +16,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ReactionsClientEventHandlers>();
         services.AddScoped<ITrainingAndExamsService, TrainingAndExamsService>();
         services.AddTransient<EventsService>();
+
+        services.AddValidatorsFromAssemblyContaining(typeof(ServiceCollectionExtensions));
 
         services.AddSingleton<IvaoItBot>();
     }

@@ -11,6 +11,7 @@ public class DiscordConfig
     public ulong BotUserId { get; set; }
     public ulong VerifiedUsersRoleId { get; set; }
     public ulong EventsStaffChannelId { get; set; }
+    public ulong[] CannelsToBeCleanedUp { get; set; }
     public string DiscordAccessWizardHomepage { get; set; }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
