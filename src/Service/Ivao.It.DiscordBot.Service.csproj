@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-Ivao.It.DiscordBot.Service-1AB9D30A-F04E-49D5-B0B8-8C37C717B4A6</UserSecretsId>
-    <Version>1.4.0</Version>
+    <Version>1.4.1</Version>
   </PropertyGroup>
 
   <ItemGroup>

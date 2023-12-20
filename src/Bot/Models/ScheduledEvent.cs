@@ -37,16 +37,26 @@ internal class ScheduledEvent
     {
         //Channel name calculations (Discord channel naming by convention)
         var airport = this.Facility![..4];
-        string channelName = airport;
-        if (airport.IsAccIcao())
-        {
-            if (this.Facility.IsAccFacility()) channelName = $"{airport} ACC Room";
-            if (this.Facility.IsAppFacility()) channelName = $"{airport} ARR/DEP";
-        }
-
+        var channelName = airport.GetAccIcao();
+        
         //channel not found => evento esterno (gestito dal getter dell'event type)
-        var channel = (await guild.GetChannelsAsync()).FirstOrDefault(c => c.Name.StartsWith(channelName));
-        this.ChannelId = channel?.Id;
+        var overlappingExistingEvents = 
+            (await guild.GetEventsAsync())
+            .Where(e=> e.StartTime <= this.End || this.Start <= e.EndTime)
+            .ToList();
+
+        var channels = (await guild.GetChannelsAsync()).Where(c => c.Name.StartsWith(channelName));
+
+        foreach (var channel in channels)
+        {
+            //Event already existing for the first channel in ACC section
+            if(overlappingExistingEvents.Any(e => e.ChannelId == channel.Id)) 
+                continue;
+            
+            //No event already planned on this channel, picking channel and stopping the loop
+            this.ChannelId = channel.Id;
+            break;
+        }
 
         //create event
         return await guild.CreateEventAsync(
