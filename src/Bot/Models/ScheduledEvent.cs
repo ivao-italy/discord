@@ -1,5 +1,7 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using Ivao.It.DiscordBot.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Ivao.It.DiscordBot.Models;
 
@@ -33,28 +35,38 @@ internal class ScheduledEvent
     /// </summary>
     /// <param name="guild"></param>
     /// <returns></returns>
-    public async Task<DiscordScheduledGuildEvent> AddToGuildAsync(DiscordGuild guild)
+    public async Task<DiscordScheduledGuildEvent> AddToGuildAsync(DiscordGuild guild, ILogger<BaseDiscordClient> logger)
     {
         //Channel name calculations (Discord channel naming by convention)
         var airport = this.Facility![..4];
         var channelName = airport.GetAccIcao();
-        
-        //channel not found => evento esterno (gestito dal getter dell'event type)
-        var overlappingExistingEvents = 
-            (await guild.GetEventsAsync())
-            .Where(e=> e.StartTime <= this.End || this.Start <= e.EndTime)
-            .ToList();
 
-        var channels = (await guild.GetChannelsAsync()).Where(c => c.Name.StartsWith(channelName));
+        //channel not found => evento esterno (gestito dal getter dell'event type)
+        var overlappingExistingEvents =
+            (await guild.GetEventsAsync())
+            .Where(e => e.StartTime <= this.End || this.Start <= e.EndTime)
+            .ToList();
+        logger.LogWarning("Found overlapping events in channels: {events}", string.Join(", ", overlappingExistingEvents.Select(e => e.Name)));
+
+        var channels = (await guild.GetChannelsAsync())
+            .OrderBy(c => c.Position)
+            .Where(c => c.Name.StartsWith(channelName))
+            .ToList();
+        logger.LogWarning("Found channels for ACC section: {channels}", string.Join(", ", channels.Select(c => c.Name)));
+
 
         foreach (var channel in channels)
         {
             //Event already existing for the first channel in ACC section
-            if(overlappingExistingEvents.Any(e => e.ChannelId == channel.Id)) 
+            if (overlappingExistingEvents.Any(e => e.ChannelId == channel.Id))
+            {
+                logger.LogWarning("Found overlapping event, skipping channel: {event} - {channel}", this.Name, channel.Name);
                 continue;
-            
+            }
+
             //No event already planned on this channel, picking channel and stopping the loop
             this.ChannelId = channel.Id;
+            logger.LogWarning("Matching event and channel: {event} on {channel}", this.Name, channel.Name);
             break;
         }
 

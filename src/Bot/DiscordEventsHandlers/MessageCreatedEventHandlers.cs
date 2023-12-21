@@ -46,8 +46,8 @@ public class MessageCreatedEventHandlers
                     Description = string.Join("", RegExpressions.Stars.Matches(embed.Title).Select(m => m.Value)),
                     StartDateTime = start,
                 };
-
-                var ev = await evt.AddToGuildAsync(guild);
+                
+                var ev = await evt.AddToGuildAsync(guild, sender.Logger);
             }
         }
     }
