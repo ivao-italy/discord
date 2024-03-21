@@ -8,7 +8,7 @@ public class LocalizationController : ControllerBase
     [HttpGet]
     public IActionResult SwitchTo(string id)
     {
-        var ci = SupportedCultures.Get().SingleOrDefault(c => c.TwoLetterISOLanguageName == id);
+        var ci = SupportedCultures.Get().SingleOrDefault(c => id.StartsWith(c.TwoLetterISOLanguageName));
 
         if (ci != null)
         {
@@ -18,6 +18,7 @@ public class LocalizationController : ControllerBase
                 new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) });
         }
 
-        return Redirect(Request.Headers["Referer"].ToString());
+        //return Redirect(Request.Headers["Referer"].ToString());
+        return Redirect("/");
     }
 }
