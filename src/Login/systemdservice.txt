@@ -1,0 +1,18 @@
+IvaoIT_DiscordLogin.service
+
+
+[Unit]
+Description=Ivao IT Discord login UI
+
+[Service]
+WorkingDirectory=/home/ivao.it/domains/discord.ivao.it/public_html
+ExecStart=/home/ivao.it/domains/discord.ivao.it/public_html/Ivao.It.DiscordLogin
+Restart=always
+RestartSec=5
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target
+
+
+

@@ -1,0 +1,17 @@
+
+IvaoIT_DiscordBot.service
+
+
+[Unit]
+Description=Ivao IT Discord Bot
+
+[Service]
+WorkingDirectory=/home/ivao.it/domains/discord.ivao.it/bot
+ExecStart=/home/ivao.it/domains/discord.ivao.it/bot/Ivao.It.DiscordBot.Service
+Restart=always
+RestartSec=5
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target
+
